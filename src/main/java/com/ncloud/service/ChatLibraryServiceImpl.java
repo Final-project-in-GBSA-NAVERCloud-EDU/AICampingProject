@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.ncloud.dao.ChatLibraryDao;
 import com.ncloud.domain.ChatLibraryVO;
+import com.ncloud.domain.UserChatHistoryVO;
 
 @Service
 public class ChatLibraryServiceImpl implements ChatLibraryService{
@@ -17,6 +18,11 @@ public class ChatLibraryServiceImpl implements ChatLibraryService{
 	@Override
 	public int insertChatLibrary(ChatLibraryVO vo) throws Exception{
 		return dao.insertChatLibrary(vo);
+	}
+	
+	@Override
+	public int insertChatHistory(UserChatHistoryVO vo) throws Exception{
+		return dao.insertChatHistory(vo);
 	}
 	
 }

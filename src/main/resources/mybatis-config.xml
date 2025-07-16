@@ -5,9 +5,14 @@
 <configuration>
   
 	<typeAliases>
+<<<<<<< HEAD
 		<typeAlias alias="library" type="com.ncloud.domain.ChatLibraryVO" />
 		<typeAlias alias="Member" type="com.ncloud.domain.MBVO" />	
 		<typeAlias alias="Login" type="com.ncloud.domain.LoginVO" />
+=======
+		<typeAlias alias="library" type="com.ncloud.domain.ChatLibraryVO" />	
+		<typeAlias alias="history" type="com.ncloud.domain.UserChatHistoryVO" />	
+>>>>>>> refs/remotes/orgin/master
 	</typeAliases>
 	
 </configuration>

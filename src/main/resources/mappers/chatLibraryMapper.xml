@@ -6,6 +6,10 @@
 
 	<!-- 채팅방, 채팅내용 insert -->
 	<insert id="insertChatLibrary" parameterType="library">
-	   INSERT INTO user_chat_library(user_id, create_at) VALUES(#{user_id}, #{create_at}) 
+	   INSERT INTO user_chat_library(user_chat_library_id, user_id, create_at) VALUES(#{user_chat_library_id}, #{user_id}, #{create_at}) 
+	</insert>
+	
+	<insert id="insertChatHistory" parameterType="library">
+	   INSERT INTO user_chat_history(user_chat_library_id, user_id, ask_value, ask_create_at) VALUES(#{user_chat_library_id}, #{user_id}, #{ask_value}, now()) 
 	</insert>
 </mapper>

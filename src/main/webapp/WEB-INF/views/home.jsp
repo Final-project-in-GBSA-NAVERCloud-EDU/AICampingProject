@@ -93,27 +93,7 @@
                 </button>
             </div>
             <div class="chat-history">
-                <div class="chat-item active" onclick="selectChat(this)">
-                    <i class="fas fa-mountain"></i>
-                    <div class="chat-info">
-                        <div class="chat-title">첫 캠핑 준비물</div>
-                        <div class="chat-preview">텐트 추천해주세요</div>
-                    </div>
-                </div>
-                <div class="chat-item" onclick="selectChat(this)">
-                    <i class="fas fa-fire"></i>
-                    <div class="chat-info">
-                        <div class="chat-title">캠핑장 추천</div>
-                        <div class="chat-preview">가족 캠핑장 찾아주세요</div>
-                    </div>
-                </div>
-                <div class="chat-item" onclick="selectChat(this)">
-                    <i class="fas fa-utensils"></i>
-                    <div class="chat-info">
-                        <div class="chat-title">캠핑 요리 레시피</div>
-                        <div class="chat-preview">간단한 캠핑 요리</div>
-                    </div>
-                </div>
+                
             </div>
             <div class="sidebar-footer">
                 <div class="user-info">
