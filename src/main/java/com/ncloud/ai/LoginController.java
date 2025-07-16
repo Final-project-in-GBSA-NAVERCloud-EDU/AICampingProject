@@ -16,7 +16,7 @@ import com.ncloud.common.JsonHndr;
 
 import com.ncloud.domain.LoginVO;
 import com.ncloud.service.LoginService;
-import com.ncloud.service.LoginService;
+
 
 @Controller
 @RequestMapping("/Login")
@@ -29,7 +29,8 @@ public class LoginController {
 	public String insertChatLibrary(@ModelAttribute("LoginVO") LoginVO vo, HttpServletResponse response, HttpServletRequest request) throws Exception {
 		String user_email = request.getParameter("user_email");
 		String user_pwd = request.getParameter("password");
-
+		
+		
 
 		vo.setEmail(user_email);
 		vo.setPassword(user_pwd);
@@ -37,7 +38,7 @@ public class LoginController {
 		
 		
 		int result = service.checkUser(vo);
-		
+		System.out.println("리절트"+result);
 		// 쿼리 로그 남길수있도록 설정
 		// 홈 페이지 
 		
@@ -46,8 +47,23 @@ public class LoginController {
 		
 		// 리절트 < 0 인경우
 		// 그냥 리턴 
+		String a= "";
 		
 		
+		if(result==1) {
+
+			
+			request.setAttribute("logincheck", 1);
+			System.out.println("성공리절트"+result);
+			a="redirect:/home.jsp";
+//			a="home";
+			
+		}
+		else {
+			System.out.println("실패리절트"+result);
+			 request.setAttribute("logincheck", 0);
+			a="home";
+		}
 		return "home";
 	}
 }

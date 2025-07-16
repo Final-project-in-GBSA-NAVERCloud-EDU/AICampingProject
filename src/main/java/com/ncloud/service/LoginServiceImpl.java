@@ -15,6 +15,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public int checkUser(LoginVO vo) throws Exception {
+    	
         return dao.checkUser(vo);
     }
 }

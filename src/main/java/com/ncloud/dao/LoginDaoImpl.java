@@ -13,6 +13,6 @@ public class LoginDaoImpl implements LoginDao {
 
     @Override
     public int checkUser(LoginVO vo) throws Exception {
-        return sqlSession.insert("loginMapper.checkUser", vo);
+        return sqlSession.selectOne("loginMapper.checkUser", vo);
     }
 }

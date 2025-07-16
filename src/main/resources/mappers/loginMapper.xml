@@ -6,10 +6,9 @@
 <mapper namespace="loginMapper">
 
   <select id="checkUser" parameterType="com.ncloud.domain.LoginVO" resultType="Integer">   
- 
-    SELECT 1
+    SELECT COUNT(*)
     FROM test_db.user
     WHERE email = #{email} and password = #{password};
   </select>
-
+	
 </mapper>

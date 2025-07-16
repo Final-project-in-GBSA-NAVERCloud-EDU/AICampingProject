@@ -50,27 +50,7 @@ function showSignup() {
 }
 
 // 로그인 처리
-function handleLogin(event) {
-    event.preventDefault();
 
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-
-    if (!email || !password) {
-        alert('이메일과 비밀번호를 입력해주세요.');
-        return;
-    }
-
-    // 임시 로그인 (실제로는 서버 인증 필요)
-    currentUser = {
-        id: Date.now(),
-        name: email.split('@')[0],
-        email: email
-    };
-
-    localStorage.setItem('campingGPTUser', JSON.stringify(currentUser));
-    showChatApp();
-}
 
 // 회원가입 처리
 function handleSignup(event) {
@@ -122,7 +102,7 @@ function logout() {
         localStorage.removeItem('campingGPTHistory');
         showAuthScreen();
         clearChat();
-        
+
         // 사용자 메뉴 닫기
         const userMenu = document.querySelector('.user-menu');
         if (userMenu) {

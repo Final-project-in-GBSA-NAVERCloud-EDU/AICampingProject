@@ -8,8 +8,18 @@
     <title>캠핑GPT - AI 캠핑 전문가</title>
     <link rel="stylesheet" href="/resources/css/style.css" />
 <!--     <link href="https://cdnjs.cloudflare.org/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> -->
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js">
+	</script>
+	
+	<% 
+	/* 	 Object logincheck=request.getAttribute("logincheck");
+	System.out.println("아아"+logincheck);  */
+	 Object logincheckObj = request.getAttribute("logincheck");
+	    String logincheck = logincheckObj != null ? logincheckObj.toString() : "0";
+/* 	 Object logincheckObj = request.getAttribute("logincheck");
+    String logincheck = logincheckObj != null ? logincheckObj.toString() : ""; */
+	%>	
+	
 </head>
 <body>
     <!-- 로그인 화면 -->
@@ -23,7 +33,7 @@
             <!-- 로그인 폼 -->
             <div id="loginForm" class="auth-form active">
                 <h2>로그인</h2>
-                <form action="/Login/signin" method="post">
+                <form action="/Login/signin" method="post" onsubmit="handleLogin(event)">
                     <div class="form-group">
                         <label for="loginEmail">이메일</label>
                         <input type="email" id="loginEmail" name="user_email" required>
@@ -32,6 +42,7 @@
                         <label for="loginPassword">비밀번호</label>
                         <input type="password" id="loginPassword" name="password"required>
                     </div>
+                    <!-- <input type="hidden" name="logincheck" value="0"> -->
                     <button type="submit" class="btn-primary">로그인</button>
                 </form>
                 <div class="auth-switch">
@@ -201,5 +212,66 @@
         </div>
     </div>
     <script src="/resources/script/script.js"></script>
+    <script>
+    const logincheck="<%=logincheck%>";
+	if (logincheck=="1" ){
+    function handleLogin(event) {
+        event.preventDefault();
+        //event.preventDefault();
+    	
+    	const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+    	
+    	console.log("스크립트체크"+logincheck);
+    	
+    
+    		
+    		if (!email || !password) {
+            alert('이메일과 비밀번호를 입력해주세요.');
+            return;
+        }
+
+        // 임시 로그인 (실제로는 서버 인증 필요)
+        currentUser = {
+            id: Date.now(),
+            name: email.split('@')[0],
+            email: email
+        };
+
+        localStorage.setItem('campingGPTUser', JSON.stringify(currentUser));
+        showChatApp();
+    		
+    		
+    	
+    	
+        
+        
+    	}
+    }
+	else{
+		console.log("logincheck 실패값: "+ logincheck);
+	}
+	
+	function logout() {
+		/* event.preventDefault(); */
+	    if (confirm('정말 로그아웃 하시겠습니까?')) {
+	        currentUser = null;
+	        localStorage.removeItem('campingGPTUser');
+	        localStorage.removeItem('campingGPTHistory');
+	        showAuthScreen();
+	        clearChat();
+	        logincheck=0;
+	        // 사용자 메뉴 닫기
+	        const userMenu = document.querySelector('.user-menu');
+	        if (userMenu) {
+	            userMenu.classList.remove('open');
+	            logincheck=0;
+	        }
+	        
+	        alert('로그아웃되었습니다.');
+	    }
+	}
+    </script>
+
 </body>
 </html>
