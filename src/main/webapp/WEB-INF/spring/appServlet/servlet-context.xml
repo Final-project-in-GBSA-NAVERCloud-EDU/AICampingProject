@@ -21,6 +21,7 @@
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 	
+	<context:component-scan base-package="com.ncloud" />
 	<context:component-scan base-package="com.ncloud.ai" />
 	<context:component-scan base-package="com.ncloud.domain" />
 	<context:component-scan base-package="com.ncloud.service" />

@@ -39,13 +39,7 @@ public class ChatLibraryController {
 		
 		int result = service.insertChatLibrary(vo);
 		
-		JSONObject json = new JSONObject();
-		if(result == 1) {
-			json.put("msg", "성공");		
-		}else {
-			json.put("msg", "실패");
-		}
 		
-		JsonHndr.print(json, response);
+		
 	}
 }

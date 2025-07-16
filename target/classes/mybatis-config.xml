@@ -5,6 +5,9 @@
 <configuration>
   
 	<typeAliases>
-		<typeAlias alias="library" type="com.ncloud.domain.ChatLibraryVO" />	
+		<typeAlias alias="library" type="com.ncloud.domain.ChatLibraryVO" />
+		<typeAlias alias="Member" type="com.ncloud.domain.MBVO" />	
+		<typeAlias alias="Login" type="com.ncloud.domain.LoginVO" />
 	</typeAliases>
+	
 </configuration>

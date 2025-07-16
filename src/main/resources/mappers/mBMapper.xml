@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mBMapper">
+
+  <insert id="insertUser" parameterType="com.ncloud.domain.MBVO">
+    INSERT INTO test_db.user (
+      user_id, name, email, password, create_at, update_at
+    )
+    VALUES (
+      #{user_id}, #{name}, #{email}, #{password}, now(), now()
+    );
+  </insert>
+
+</mapper>
