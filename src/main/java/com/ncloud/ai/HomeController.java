@@ -24,6 +24,13 @@ public class HomeController {
 	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home(Locale locale, Model model) {
+		
+		// 쿠키 읽기 
+		// 있으면 홈페이지입니다~
+		
+		// 쿠기가 있으면
+		// 히스토리 데이터 디비에서 가져오기 
+		
 		logger.info("Welcome home! The client locale is {}.", locale);
 		
 		Date date = new Date();

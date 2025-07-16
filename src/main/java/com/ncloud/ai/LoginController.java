@@ -38,6 +38,14 @@ public class LoginController {
 		
 		int result = service.checkUser(vo);
 		
+		// 쿼리 로그 남길수있도록 설정
+		// 홈 페이지 
+		
+		// 리절트 = 1 인경우 
+		// 디비에 데이터가 있다는거니까 여기서 쿠키생성
+		
+		// 리절트 < 0 인경우
+		// 그냥 리턴 
 		
 		
 		return "home";
