@@ -3,11 +3,7 @@ pipeline {
     
     tools {
         maven 'Maven-3.9.4'
-        jdk 'JDK-17'
-    }
-    
-    environment {
-        APP_NAME = 'aicamping'
+        jdk 'JDK-8'  // Java 8 사용
     }
     
     stages {
@@ -21,29 +17,21 @@ pipeline {
         stage('Build') {
             steps {
                 echo '=== Maven Build Start ==='
-                sh 'mvn clean compile'
+                sh 'mvn clean compile -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8'
             }
         }
         
         stage('Test') {
             steps {
                 echo '=== Running Tests ==='
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    publishTestResults(
-                        testResultsPattern: 'target/surefire-reports/*.xml',
-                        allowEmptyResults: true
-                    )
-                }
+                sh 'mvn test -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8'
             }
         }
         
         stage('Package') {
             steps {
                 echo '=== Creating WAR Package ==='
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean package -DskipTests -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8'
             }
             post {
                 success {
@@ -55,11 +43,10 @@ pipeline {
     
     post {
         always {
-            echo '=== Cleaning Workspace ==='
             cleanWs()
         }
         success {
-            echo '=== Build and Package Successful! ==='
+            echo '=== Build Success! ==='
         }
         failure {
             echo '=== Build Failed! ==='
