@@ -7,6 +7,7 @@ public class ChatLibraryVO {
 	private int user_chat_library_id; 
 	private String user_id; 
 	private String create_at;
+	private String title;
 	
 	
 	public int getUser_chat_library_id() {
@@ -26,6 +27,12 @@ public class ChatLibraryVO {
 	}
 	public void setCreate_at(String create_at) {
 		this.create_at = create_at;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	
 	

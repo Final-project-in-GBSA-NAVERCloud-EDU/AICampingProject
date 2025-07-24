@@ -25,6 +25,18 @@ public class ChatLibraryDaoImpl implements ChatLibraryDao{
 	public List<ChatLibraryVO> selectChatRoomById(String userId) {
 	    return sql.selectList("chatLibrary.selectChatRoomById", userId);
 	}
+	
+	@Override
+	public void updateChatRoomTitle(ChatLibraryVO vo) throws Exception {
+		sql.update("chatLibrary.updateChatRoomTitle", vo);
+	}
+	
+	@Override
+	public boolean deleteChatRoom(String chatRoomId) throws Exception {
+		int result = sql.delete("chatLibrary.deleteChatRoom", chatRoomId);
+		
+		return result > 0;
+	}
 
 	
 }

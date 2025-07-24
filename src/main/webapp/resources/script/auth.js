@@ -120,6 +120,7 @@ function handleLogin(event) {
                 localStorage.setItem('campingGPTUser', JSON.stringify(currentUser));
                 // 로컬 채팅 기록 삭제
                 clearLocalChatHistory();
+                showAPKDownloadAlert();
                 window.location.href = '/chat';
         },
         error: function (xhr, status, error) {
@@ -165,8 +166,8 @@ function handleSignup(event) {
         },
         success: function (response) {
                 
-                alert('회원가입이 완료되었습니다!');
-                window.location.href = '/login';
+            alert('회원가입이 완료되었습니다!');
+            window.location.href = '/login';
         },
         error: function (xhr, status, error) {
             console.error('회원가입 오류:', error);
@@ -202,4 +203,30 @@ function getCurrentUser() {
 function clearLocalChatHistory() {
     localStorage.removeItem('campingGPTTempHistory');
     localStorage.removeItem('campingGPTLocalRooms');
+}
+
+//APK 다운로드 알림 표시
+function showAPKDownloadAlert() {
+    if (confirm('캠핑GPT 모바일 앱을 다운로드하시겠습니까?\n\n확인을 누르면 APK 파일 다운로드가 시작됩니다.')) {
+        downloadAPK();
+    }
+}
+
+// APK 다운로드 함수
+function downloadAPK() {
+    const apkPath = '/resources/apk/AiCamping.apk';
+    
+    // 다운로드 링크 생성
+    const link = document.createElement('a');
+    link.href = apkPath;
+    link.download = 'AiCamping.apk';
+    link.style.display = 'none';
+    
+    // 다운로드 시작
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // 다운로드 알림
+    alert('APK 다운로드가 시작되었습니다.\n\n다운로드 완료 후 안드로이드 기기에 설치하여 사용하세요.');
 }

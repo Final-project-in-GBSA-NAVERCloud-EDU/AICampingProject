@@ -57,7 +57,7 @@ function loadChatRoomsFromServer(maintainSelection = false) {
     });
 }
 
-// 채팅방 목록 렌더링
+//채팅방 목록 렌더링
 function renderChatRooms() {
     const chatHistory = document.querySelector('.chat-history');
     chatHistory.innerHTML = '';
@@ -72,6 +72,7 @@ function renderChatRooms() {
 
             // 채팅방 제목 처리
             let title = room.title || '새 대화';
+            let createChat = room.create_at.slice(0, 16);
             if (title === '새 대화' && room.create_at) {
                 // create_at 기반으로 제목 생성
                 const createDate = new Date(room.create_at);
@@ -85,7 +86,10 @@ function renderChatRooms() {
                 <i class="fas fa-comment"></i>
                 <div class="chat-info">
                     <div class="chat-title">${title}</div>
-                    <div class="chat-preview">${preview}</div>
+                    <div class="chat-preview">${createChat}</div>
+                </div>
+                <div class="chat-delete-btn" onclick="event.stopPropagation(); deleteChatRoom('${room.user_chat_library_id}')">
+                    <i class="fas fa-times"></i>
                 </div>
             `;
 
@@ -172,34 +176,6 @@ function createNewChatRoom() {
     console.log('새 채팅방 생성됨 (임시 ID):', currentChatId);
 }
 
-// 채팅방 제목 업데이트
-function updateChatRoomTitle(roomId, title) {
-    if (!currentUser) return;
-
-    fetch('/updateChatRoom', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            roomId: roomId,
-            title: title
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const room = chatRooms.find(r => r.roomId === roomId);
-            if (room) {
-                room.title = title;
-                renderChatRooms();
-            }
-        }
-    })
-    .catch(error => {
-        console.error('채팅방 제목 업데이트 오류:', error);
-    });
-}
 
 // 채팅방 메시지 로드
 function loadChatMessages(roomId) {
@@ -400,5 +376,40 @@ function renderLocalChatRooms() {
         `;
 
         chatHistory.appendChild(chatItem);
+    });
+}
+
+//채팅방 삭제 (서버)
+function deleteChatRoom(roomId) {
+    if (!confirm('이 채팅방을 삭제하시겠습니까?')) {
+        return;
+    }
+
+    $.ajax({
+        url: '/ChatLibrary/deleteChatRoom',
+        method: 'POST',
+        dataType: "JSON",
+        data: {
+            chatRoomId: roomId
+        },
+        success: function(response) {
+            if (response.success) {
+                console.log('채팅방 삭제 성공:', response.message);
+                alert(response.message);
+                // 삭제된 채팅방이 현재 선택된 채팅방인 경우
+                if (currentChatId === roomId) {
+                    startNewChat();
+                }
+                
+                // 채팅방 목록 새로고침
+                loadChatRoomsFromServer();
+            } else {
+                alert('채팅방 삭제에 실패했습니다: ' + response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('채팅방 삭제 오류:', error);
+            alert('채팅방 삭제 중 오류가 발생했습니다.');
+        }
     });
 }

@@ -23,8 +23,8 @@
                 </div>
                 <button class="new-chat-btn" onclick="startNewChat()">
                     <i class="fas fa-plus"></i>
-                    새 대화
-                </button>
+                    	새 대화
+                </button>                 
             </div>
 
             <div class="chat-history" id="chatHistory">
@@ -43,9 +43,13 @@
             <div class="chat-header">
                 <h2>캠핑 AI 전문가</h2>
                 <div class="header-right">
+	                <button class="apk-download-btn" onclick="downloadAPK()">
+	                      <i class="fas fa-download"></i>
+	                      <span>APK 다운로드</span>
+	                </button>
                     <div class="chat-status">
                         <i class="fas fa-circle online"></i>
-                        온라인
+                        	온라인
                     </div>
                     <div class="user-menu" id="headerUserMenu">
                         <!-- 동적으로 생성됨 -->
@@ -91,6 +95,13 @@
 
             <div class="chat-input-container">
                 <div class="chat-input">
+                	<button class="voice-btn" title="음성 인식">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="file-btn" title="파일 첨부">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="file" id="fileInput" style="display: none;" accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)">
                     <input type="text" id="messageInput" placeholder="캠핑에 대해 무엇이든 물어보세요..." onkeypress="handleKeyPress(event)">
                     <button onclick="sendMessage()" class="send-btn">
                         <i class="fas fa-paper-plane"></i>

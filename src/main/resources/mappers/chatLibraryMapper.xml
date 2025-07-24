@@ -14,5 +14,17 @@
 		SELECT * FROM user_chat_library WHERE user_id = #{user_id} ORDER BY create_at DESC
 	</select>
 	
+	<!-- 채팅방 제목 업데이트 -->
+	<update id="updateChatRoomTitle" parameterType="library">
+	    UPDATE user_chat_library 
+	    SET title = #{title}
+	    WHERE user_chat_library_id = #{user_chat_library_id}
+	</update>
+	
+	<!-- 채팅방 제목 업데이트 -->
+	<delete id="deleteChatRoom" parameterType="String">
+	    DELETE FROM user_chat_library WHERE user_chat_library_id = #{chatRoomId}
+
+	</delete>
 	
 </mapper>

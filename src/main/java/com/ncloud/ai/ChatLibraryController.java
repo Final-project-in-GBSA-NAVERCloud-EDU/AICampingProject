@@ -135,7 +135,7 @@ public class ChatLibraryController {
 	            roomObj.put("user_chat_library_id", chatRoom.getUser_chat_library_id());
 	            roomObj.put("user_id", chatRoom.getUser_id());
 	            roomObj.put("create_at", chatRoom.getCreate_at());
-//	            roomObj.put("title", chatRoom.getTitle() != null ? chatRoom.getTitle() : "새 대화");
+	            roomObj.put("title", chatRoom.getTitle() != null ? chatRoom.getTitle() : "새 대화");
 //	            roomObj.put("preview_text", chatRoom.getPreview_text());
 	            chatRoomsArray.put(roomObj);
 	        }
@@ -149,6 +149,87 @@ public class ChatLibraryController {
 	        
 	        json.put("success", false);
 	        json.put("message", "채팅방 목록을 불러오는 중 오류가 발생했습니다.");
+	    }
+	    
+	    JsonHndr.print(json, response);
+	}
+	
+	
+	@RequestMapping(value = "/updateChatRoomTitle", method = RequestMethod.POST)
+	public void updateChatRoomTitle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	    String chatRoomId = request.getParameter("chatRoomId");
+	    String title = request.getParameter("title");
+	    
+	    JSONObject json = new JSONObject();
+	    
+	    try {
+	        if (chatRoomId == null || chatRoomId.trim().isEmpty()) {
+	            json.put("success", false);
+	            json.put("message", "채팅방 ID가 필요합니다.");
+	            JsonHndr.print(json, response);
+	            return;
+	        }
+	         
+	        if (title == null || title.trim().isEmpty()) {
+	            json.put("success", false);
+	            json.put("message", "제목이 필요합니다.");
+	            JsonHndr.print(json, response);
+	            return;
+	        }
+	        
+	        // 채팅방 제목 업데이트
+	        ChatLibraryVO chatRoom = new ChatLibraryVO();
+	        chatRoom.setUser_chat_library_id(Integer.parseInt(chatRoomId));
+	        chatRoom.setTitle(title);
+	        
+	        service.updateChatRoomTitle(chatRoom);
+	        
+	        json.put("success", true);
+	        json.put("message", "채팅방 제목이 업데이트되었습니다.");
+	        json.put("title", title);
+	        
+	    } catch (Exception e) {
+	        System.err.println("채팅방 제목 업데이트 오류: " + e.getMessage());
+	        e.printStackTrace();
+	        
+	        json.put("success", false);
+	        json.put("message", "채팅방 제목 업데이트 중 오류가 발생했습니다.");
+	    }
+	    
+	    JsonHndr.print(json, response);
+	}
+	
+	@RequestMapping(value = "/deleteChatRoom", method = RequestMethod.POST)
+	public void deleteChatRoom(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	    String chatRoomId = request.getParameter("chatRoomId");
+	    
+	    JSONObject json = new JSONObject();
+	    
+	    try {
+	        if (chatRoomId == null || chatRoomId.trim().isEmpty()) {
+	            json.put("success", false);
+	            json.put("message", "채팅방 ID가 필요합니다.");
+	            JsonHndr.print(json, response);
+	            return;
+	        }
+	        
+	        // 채팅방 삭제
+	        boolean isDeleted = service.deleteChatRoom(chatRoomId);
+	        
+	        if (isDeleted) {
+	            json.put("success", true);
+	            json.put("message", "채팅방이 성공적으로 삭제되었습니다.");
+	        } else {
+	            json.put("success", false);
+	            json.put("message", "채팅방 삭제에 실패했습니다.");
+	        }
+	        
+	    } catch (Exception e) {
+	        System.err.println("채팅방 삭제 오류: " + e.getMessage());
+	        e.printStackTrace();
+	        
+	        json.put("success", false);
+	        json.put("message", "채팅방 삭제 중 오류가 발생했습니다.");
 	    }
 	    
 	    JsonHndr.print(json, response);

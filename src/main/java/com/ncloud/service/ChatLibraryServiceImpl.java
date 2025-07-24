@@ -27,5 +27,13 @@ public class ChatLibraryServiceImpl implements ChatLibraryService{
 	    return dao.selectChatRoomById(userId);
 	}
 	
+	@Override
+	public void updateChatRoomTitle(ChatLibraryVO vo) throws Exception {
+	    dao.updateChatRoomTitle(vo);
+	}
 	
+	@Override
+	public boolean deleteChatRoom(String chatRoomId) throws Exception {
+		return dao.deleteChatRoom(chatRoomId);
+	}
 }

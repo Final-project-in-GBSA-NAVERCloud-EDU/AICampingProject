@@ -11,6 +11,8 @@ public interface ChatLibraryDao {
 	
 	public List<ChatLibraryVO> selectChatRoomById(String userId) throws Exception;
 	
+	public void updateChatRoomTitle(ChatLibraryVO vo) throws Exception;
 	
+	public boolean deleteChatRoom(String chatRoomId) throws Exception;
 	
 }

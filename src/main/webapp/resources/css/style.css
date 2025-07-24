@@ -216,6 +216,7 @@ body {
     cursor: pointer;
     margin-bottom: 0.5rem;
     transition: all 0.2s ease;
+    position: relative;
 }
 
 .chat-item:hover {
@@ -250,7 +251,44 @@ body {
     opacity: 0.7;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis;text-overflow: ellipsis;
+}
+
+/* 채팅방 삭제 버튼 */
+.chat-delete-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+/*     background: #ff4757; */
+    border: none;
+    color: white;
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.chat-item:hover .chat-delete-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+.chat-delete-btn:hover {
+/*     background: #ff3742; */
+    transform: translateY(-50%) scale(1.1);
+}
+
+.chat-item:hover .chat-info {
+    padding-right: 2rem;
 }
 
 /* 사이드바 푸터 */
@@ -663,6 +701,7 @@ body {
     min-height: 100vh;
     background: #181818;
     padding: 2rem;
+    justify-self: center;
 }
 
 .auth-box {
@@ -954,4 +993,83 @@ body {
 /* 숨김 클래스 */
 .hidden {
     display: none !important;
+}
+
+  /* 음성 및 파일 버튼 스타일 */
+.voice-btn, .file-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.voice-btn:hover, .file-btn:hover {
+    color: #7fd85a;
+    background: rgba(127, 216, 90, 0.1);
+}
+
+.input-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #7fd85a;
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+}
+
+.speak-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.speak-btn:hover {
+    color: #7fd85a;
+    background: rgba(127, 216, 90, 0.1);
+}
+
+.header-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.apk-download-btn {
+    background: linear-gradient(45deg, #7fd85a, #5cb85c);
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.apk-download-btn:hover {
+    background: linear-gradient(45deg, #5cb85c, #4a7c59);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(127, 216, 90, 0.3);
+}
+
+.apk-download-btn i {
+    font-size: 1rem;
+}
+
+.apk-download-btn span {
+    font-size: 0.9rem;
 }
