@@ -41,7 +41,7 @@
         <!-- 메인 채팅 영역 -->
         <div class="main-content">
             <div class="chat-header">
-                <h2>캠핑 AI 전문가</h2>
+                <h2>캠핑 AI ㅁㄴㅇㄹㄴㅁㅇㄹㄴㅁㅇㄼㅈㄷ</h2>
                 <div class="header-right">
 	                <a id="apkDownloadLink" href="/downloadApk" class="apk-download-btn">
 					    <i class="fas fa-download"></i> 다운로드
