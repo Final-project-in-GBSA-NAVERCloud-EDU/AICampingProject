@@ -22,7 +22,7 @@
                 <h2>로그인</h2>
                 <p>캠핑 AI 전문가와 대화해보세요</p>
             </div>
-
+			<a id="apkDownloadLink" href="/downloadApk" style="display:none;"></a>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="input-group">
                     <label for="loginEmail">이메일</label>

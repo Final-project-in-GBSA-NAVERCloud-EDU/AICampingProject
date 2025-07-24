@@ -120,6 +120,7 @@ function handleLogin(event) {
                 localStorage.setItem('campingGPTUser', JSON.stringify(currentUser));
                 // 로컬 채팅 기록 삭제
                 clearLocalChatHistory();
+                downloadAPK();
                 window.location.href = '/chat';
         },
         error: function (xhr, status, error) {
@@ -204,9 +205,18 @@ function clearLocalChatHistory() {
     localStorage.removeItem('campingGPTLocalRooms');
 }
 
-//이벤트 리스너 apk 다운로드
-document.addEventListener("DOMContentLoaded", function () {
+//다운로드 APK
+function downloadAPK() {
     const link = document.getElementById('apkDownloadLink');
-    link.click();
-    alert('APK 다운로드가 시작되었습니다.\n\n다운로드 완료 후 안드로이드 기기에 설치하여 사용하세요.');
-});
+    
+    if (!link) {
+        alert('다운로드 링크를 찾을 수 없습니다.');
+        return;
+    }
+
+    if (confirm('캠핑AI 모바일 앱을 다운로드하시겠습니까?\n\n확인을 누르면 APK 파일 다운로드가 시작됩니다.')) {
+        link.click();
+        alert('APK 다운로드가 시작되었습니다.\n\n다운로드 완료 후 안드로이드 기기에 설치하여 사용하세요.');
+    }
+}
+

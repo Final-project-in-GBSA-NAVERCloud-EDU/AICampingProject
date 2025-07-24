@@ -43,9 +43,11 @@
             <div class="chat-header">
                 <h2>캠핑 AI 전문가</h2>
                 <div class="header-right">
-	                <a id="apkDownloadLink" href="/downloadApk" class="apk-download-btn">
+					<a id="apkDownloadLink" href="/downloadApk" style="display:none;"></a>
+					<button onclick="downloadAPK()" class="apk-download-btn">
 					    <i class="fas fa-download"></i> 다운로드
-					</a>
+					</button>
+					
                     <div class="chat-status">
                         <i class="fas fa-circle online"></i>
                         	온라인
