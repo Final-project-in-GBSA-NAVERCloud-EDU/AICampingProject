@@ -44,7 +44,7 @@
 
             <div class="auth-footer">
                 <p>이미 계정이 있으신가요? <a href="/login">로그인</a></p>
-                <p><a href="chat.html">로그인 없이 시작하기</a></p>
+                <p><a href="/chat">로그인 없이 시작하기</a></p>
             </div>
         </div>
     </div>
