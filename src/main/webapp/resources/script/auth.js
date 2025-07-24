@@ -207,14 +207,14 @@ function clearLocalChatHistory() {
 
 //APK 다운로드 알림 표시
 function showAPKDownloadAlert() {
-    if (confirm('캠핑GPT 모바일 앱을 다운로드하시겠습니까?\n\n확인을 누르면 APK 파일 다운로드가 시작됩니다.')) {
+    if (confirm('캠핑AI 모바일 앱을 다운로드하시겠습니까?\n\n확인을 누르면 APK 파일 다운로드가 시작됩니다.')) {
         downloadAPK();
     }
 }
 
 // APK 다운로드 함수
 function downloadAPK() {
-    const apkPath = '/resources/apk/AiCamping.apk';
+    const apkPath = '/downloadApk';
     
     // 다운로드 링크 생성
     const link = document.createElement('a');

@@ -41,11 +41,11 @@
         <!-- 메인 채팅 영역 -->
         <div class="main-content">
             <div class="chat-header">
-                <h2>캠핑 AI 전문가</h2>
+                <h2>캠핑 AI 챗봇</h2>
                 <div class="header-right">
-	                <button class="apk-download-btn" onclick="downloadAPK()">
+	                <button class="apk-download-btn" >
 	                      <i class="fas fa-download"></i>
-	                      <span>APK 다운로드</span>
+	                      <a href="/downloadApk">다운로드</a>
 	                </button>
                     <div class="chat-status">
                         <i class="fas fa-circle online"></i>
