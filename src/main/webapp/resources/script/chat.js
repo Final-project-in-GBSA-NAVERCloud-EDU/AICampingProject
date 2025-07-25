@@ -1,6 +1,7 @@
 
 // 채팅 관련 전역 변수
 let chatHistory = [];
+let attachedFiles = [];
 
 function getMySQLDatetimeString() {
     const now = new Date();
@@ -72,6 +73,15 @@ function sendMessage() {
             currentChatId = 'new_' + Date.now().toString();
         }
         setFirstMessageFlag(false);
+        
+        displayMessageWithImages(message, attachedFiles, true);
+
+        messageInput.value = '';
+        
+        // 첨부 파일 초기화
+        const currentAttachments = [...attachedFiles];
+        clearAllAttachments();
+        
     }
 
     // 사용자 메시지 표시
