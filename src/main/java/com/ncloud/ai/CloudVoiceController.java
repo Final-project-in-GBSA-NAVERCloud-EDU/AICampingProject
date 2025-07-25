@@ -53,8 +53,8 @@ public class CloudVoiceController {
 	        con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
 	        con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
 	        con.setDoOutput(true);
-	        
-	        String postParams = "speaker=nara&volume=0&speed=0&pitch=0&format=mp3&text=" + encodedText;
+	        //이밑에 speaker이 음성모델 선택임 볼륨 음성크기 5는1.5배크개 -5는 0.5배 스피드 음성속도 10은2배느리게 -5는 2배빠르게  피치 음높낮이 5가 1.2배 높은음 -5가 0.8배 낮은음
+	        String postParams = "speaker=nes_c_hyeri&volume=0&speed=0&pitch=0&format=mp3&text=" + encodedText;
 	        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
 	        wr.writeBytes(postParams);
 	        wr.flush();
