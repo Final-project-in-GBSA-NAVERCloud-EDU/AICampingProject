@@ -41,7 +41,7 @@
         <!-- 메인 채팅 영역 -->
         <div class="main-content">
             <div class="chat-header">
-                <h2>캠핑 AI 전문가</h2>
+                <h2>캠핑 AI ㅂㅈㄷㄱㅂㅈㄷㄱㅈㅂㄷㄱ</h2>
                 <div class="header-right">
 					<a id="apkDownloadLink" href="/downloadApk" style="display:none;"></a>
 					<button onclick="downloadAPK()" class="apk-download-btn">
@@ -66,8 +66,8 @@
                     </div>
                     <div class="message-content">
                         <div class="message-text">
-                            안녕하세요! 저는 캠핑 전문 AI입니다. 🏕️<br>
-                            캠핑에 관한 모든 질문에 답해드릴게요. 궁금한 것이 있으시면 언제든 물어보세요!
+                            	안녕하세요! 저는 캠핑 전문 AI입니다. 🏕️<br>
+                            	캠핑에 관한 모든 질문에 답해드릴게요. 궁금한 것이 있으시면 언제든 물어보세요!
                         </div>
                         <div class="message-time">방금 전</div>
                     </div>
