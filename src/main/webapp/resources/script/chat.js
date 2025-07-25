@@ -473,7 +473,6 @@ function updateChatRoomTitleWithMessage(chatRoomId, message) {
 //TTS 기능
 function playTextToSpeech(text, content) {
     console.log('TTS 요청:', text);
-    alert(content);
     
     if (!content || content.trim().length === 0) {
         alert('재생할 텍스트가 없습니다.');

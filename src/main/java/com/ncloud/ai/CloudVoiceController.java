@@ -29,6 +29,7 @@ public class CloudVoiceController {
 	@RequestMapping(value = "/textToSpeech", method = RequestMethod.POST)
 	public void textToSpeech(HttpServletRequest request, HttpServletResponse response) throws Exception {
 	    String text = request.getParameter("text");
+	    text = text.replace("<br>", "\n"); // 또는 공백으로
 	    
 	    JSONObject json = new JSONObject();
 	    
@@ -71,6 +72,7 @@ public class CloudVoiceController {
 	            String fileName = "tts_" + System.currentTimeMillis() + ".mp3";
 	            String filePath = request.getSession().getServletContext().getRealPath("/resources/audio/") + fileName;
 	            
+	            System.out.println("filePath : " + filePath);
 	            // 디렉토리 생성
 	            File dir = new File(request.getSession().getServletContext().getRealPath("/resources/audio/"));
 	            if (!dir.exists()) {
