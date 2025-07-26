@@ -37,7 +37,7 @@ public class ChatLibraryController {
 	@Inject
 	ChatHistoryService hservice;
 	
-	@RequestMapping(value = "/sendMessage")
+	@RequestMapping(value = "/sendMessage", method = RequestMethod.POST)
 	public void insertChatLibrary(@ModelAttribute("ChatLibraryVO") ChatLibraryVO vo, HttpServletResponse response, HttpServletRequest request) throws Exception {
 	    String user_id = request.getParameter("savedUser");
 	    String create_at = request.getParameter("currentTime");

@@ -96,7 +96,7 @@
 
             <div class="chat-input-container">
                 <div class="chat-input">
-                	<button class="voice-btn" title="음성 인식">
+                	<button class="voice-btn" title="음성 인식" onclick="startRecording()">
                         <i class="fas fa-microphone"></i>
                     </button>
                     <button class="file-btn" title="파일 첨부">

@@ -722,3 +722,48 @@ function handleFileUpload(event) {
     // 파일 인풋 초기화
     event.target.value = '';
 }
+
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks = [];
+    
+        // alert("알러트테스트"); // 마이크 접근 확인
+        mediaRecorder.ondataavailable = e => {
+            chunks.push(e.data);
+        };
+        mediaRecorder.start();
+        setTimeout(() => mediaRecorder.stop(), 3000); // 2초 녹음
+        mediaRecorder.onstop = () => {
+            // ✅ MIME 타입 수정: voice/mp3 → audio/mp3 또는 생략
+            const blob = new Blob(chunks, { type: "audio/mp3" });
+            console.log("🔊 녹음된 형식:", blob.type);
+            const formData = new FormData();
+            formData.append("file", blob, "voice.mp3");
+            $.ajax({
+                url: '/voice/speechToText',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log("✅ STT 응답:", response);
+                    const text = response.text || response.message || "[음성 인식 실패]";
+                    $("#messageInput").val(text);
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    sendMessage();
+                },
+                error: function(xhr, status, error) {
+                    console.error("❌ 음성 인식 오류:", error);
+                    console.error("서버 응답 본문:", xhr.responseText);
+                    $("#messageInput").val("[STT 서버 오류]");
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            });
+        };
+    }).catch(err => {
+        alert("❌ 마이크 권한이 필요합니다");
+        console.error("마이크 오류:", err);
+    });
+}

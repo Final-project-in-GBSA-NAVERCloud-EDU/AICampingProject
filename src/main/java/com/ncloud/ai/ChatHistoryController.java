@@ -33,7 +33,7 @@ public class ChatHistoryController {
 	@Inject
 	ChatHistoryService service;
 	
-	@RequestMapping(value = "/sendAiMessage")
+	@RequestMapping(value = "/sendAiMessage", method = RequestMethod.POST)
 	public void insertChatLibrary(@ModelAttribute("UserChatHistoryVO") UserChatHistoryVO vo ,HttpServletResponse response, HttpServletRequest request) throws Exception {
 		String user_id = request.getParameter("savedUser");
 		String selectedChatRoomId = request.getParameter("finalChatRoomId");
