@@ -110,7 +110,7 @@
                 </div>
                 <div class="input-hint">
                     <i class="fas fa-lightbulb"></i>
-                    팁: 구체적으로 질문할수록 더 정확한 답변을 받을 수 있습니다
+                   		 팁: 구체적으로 질문할수록 더 정확한 답변을 받을 수 있습니다
                 </div>
             </div>
         </div>
