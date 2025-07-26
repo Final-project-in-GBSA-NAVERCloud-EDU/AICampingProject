@@ -16,17 +16,30 @@
          <property name="configLocation" value="classpath:/mybatis-config.xml"></property>
          <property name="mapperLocations" value="classpath:mappers/**/*Mapper.xml"/>
     </bean>
-    
+<!--     
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    	<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-    	<property name="url" value="jdbc:mysql://127.0.0.1:3306/camping_ai?useUnicode=true&amp;characterEncoding=utf8&amp;connectionCollation=utf8mb4_unicode_ci" />
-    	<property name="username" value="mesdb"></property>
-    	<property name="password" value="mesdb12#$"></property>
+    	<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+    	<property name="url" value="jdbc:mysql://db-36a7i9-kr.vpc-pub-cdb.ntruss.com:3306/pubtestdb?serverTimezone=UTC"/>
+    	<property name="username" value="master"></property>
+    	<property name="password" value="ai1234!@#$"></property>
+	</bean> -->
+	  <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    	<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+   	<property name="url" value="jdbc:mysql://223.130.154.248:3306/camping_ai?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=UTC" />
+   	
+<!-- 			 <property name="url" value="jdbc:mysql://223.130.154.248:3306/camping_ai?useUnicode=true&amp;characterEncoding=utf8mb4&amp;serverTimezone=UTC&amp;autoReconnect=true&amp;allowPublicKeyRetrieval=true&amp;useSSL=false" />
+ -->			 <property name="username" value="master"></property>
+    	<property name="password" value="Ai1234!@#$"></property>
 	</bean>
 	
 	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
         <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
     </bean>
+    <!-- MultipartResolver 설정 (파일 업로드 처리용) -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	    <property name="defaultEncoding" value="UTF-8" />
+	    <property name="maxUploadSize" value="10485760" /> <!-- 최대 10MB -->
+	</bean>
     
   
 

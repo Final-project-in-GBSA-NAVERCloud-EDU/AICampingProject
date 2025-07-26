@@ -48,7 +48,7 @@
 	    <servlet-name>h2-console</servlet-name>
 	    <url-pattern>/h2-console/*</url-pattern>
 	</servlet-mapping>
-
 	
+
 
 </web-app>

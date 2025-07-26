@@ -91,6 +91,10 @@
 
             <div class="chat-input-container">
                 <div class="chat-input">
+                <!-- 밑에 온클릭, 클래스도 안준 버튼이 녹음시작 하게 할거임 -->
+                <button id="voiceInput" onclick="startRecording()">
+				    <i class="fas fa-paper-plane"></i>
+				</button>
                     <input type="text" id="messageInput" placeholder="캠핑에 대해 무엇이든 물어보세요..." onkeypress="handleKeyPress(event)">
                     <button onclick="sendMessage()" class="send-btn">
                         <i class="fas fa-paper-plane"></i>
