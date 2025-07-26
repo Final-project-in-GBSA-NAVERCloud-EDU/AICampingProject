@@ -12,6 +12,12 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+<div id="authScreen" class="auth-screen">
+        <video id="authVideo" class="auth-video-background" autoplay muted loop>
+            <source src="/resources/video/camp.mp4" type="video/mp4">
+            <source src="/resources/video/camp.mp4" type="video/mp4">
+        </video>
+        <div class="auth-video-overlay"></div>
     <div class="auth-container">
         <div class="auth-box">
             <div class="auth-header">
@@ -41,7 +47,7 @@
             </div>
         </div>
     </div>
-
+</div>
     <script src="/resources/script/auth.js"></script>
     <script src="/resources/script/main.js"></script>
 </body>

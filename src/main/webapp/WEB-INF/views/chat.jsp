@@ -41,7 +41,7 @@
         <!-- 메인 채팅 영역 -->
         <div class="main-content">
             <div class="chat-header">
-                <h2>캠핑 AI ㅂㅈㄷㄱㅂㅈㄷㄱㅈㅂㄷㄱ</h2>
+                <h2>캠핑 AI 챗봇</h2>
                 <div class="header-right">
 					<a id="apkDownloadLink" href="/downloadApk" style="display:none;"></a>
 					<button onclick="downloadAPK()" class="apk-download-btn">

@@ -74,7 +74,7 @@ function sendMessage() {
         }
         setFirstMessageFlag(false);
         
-        displayMessageWithImages(message, attachedFiles, true);
+//        displayMessageWithImages(message, attachedFiles, true);
 
         messageInput.value = '';
         

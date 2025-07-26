@@ -11,6 +11,42 @@ function initializeAuth() {
         setupLoggedInUser();
     } else {
         setupGuestUser();
+        
+        initializeVideoBackground();
+    }
+}
+
+//비디오 배경 초기화
+function initializeVideoBackground() {
+    const video = document.getElementById('authVideo');
+    if (video) {
+        // 비디오 로드 실패 시 기본 배경으로 대체
+        video.addEventListener('error', function() {
+            console.log('비디오 로드 실패, 기본 배경으로 대체');
+            video.style.display = 'none';
+        });
+
+        // 비디오 로드 성공 시
+        video.addEventListener('loadeddata', function() {
+            console.log('비디오 배경 로드 완료');
+        });
+
+        // 자동 재생이 차단된 경우 처리
+        video.play().catch(function(error) {
+            console.log('자동 재생이 차단됨:', error);
+            // 사용자 상호작용 후 재생하도록 이벤트 리스너 추가
+            document.addEventListener('click', playVideoOnce, { once: true });
+        });
+    }
+}
+
+// 사용자 클릭 시 비디오 재생
+function playVideoOnce() {
+    const video = document.getElementById('authVideo');
+    if (video) {
+        video.play().catch(function(error) {
+            console.log('비디오 재생 실패:', error);
+        });
     }
 }
 
