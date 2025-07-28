@@ -618,7 +618,7 @@ function playTextToSpeech(text, content) {
     
     $.ajax({
         url: '/voice/textToSpeech',
-        method: 'POST',
+        method: 'GET',
         dataType: 'JSON',
         data: {
             text: content.trim()

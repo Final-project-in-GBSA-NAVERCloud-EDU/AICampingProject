@@ -11,9 +11,12 @@ import com.ncloud.common.JsonHndr;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +31,91 @@ import java.util.*;
 @RequestMapping("/voice")
 public class CloudVoiceController {
 
+	@RequestMapping(value = "/serveAudio/{filename:.+}", method = RequestMethod.GET)
+	public void serveAudioFile(@PathVariable String filename, 
+	                          HttpServletRequest request,
+	                          HttpServletResponse response) {
+	    try {
+	        // 모든 가능한 경로에서 파일 찾기
+	        String[] possiblePaths = {
+	            // 현재 서버의 경로
+	            request.getSession().getServletContext().getRealPath("/") + "resources/audio/" + filename,
+	            // 하드코딩된 경로 (백업)
+	            "/opt/tomcat9/webapps/cicdtest/resources/audio/" + filename
+	        };
+	        
+	        File audioFile = null;
+	        String foundPath = null;
+	        
+	        // 파일이 존재하는 경로 찾기
+	        for (String path : possiblePaths) {
+	            File file = new File(path);
+	            if (file.exists() && file.isFile()) {
+	                audioFile = file;
+	                foundPath = path;
+	                break;
+	            }
+	        }
+	        
+	        if (audioFile == null || !audioFile.exists()) {
+	            System.err.println("오디오 파일을 찾을 수 없음: " + filename);
+	            System.err.println("시도한 경로들:");
+	            for (String path : possiblePaths) {
+	                System.err.println("  - " + path);
+	            }
+	            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+	            response.setContentType("application/json");
+	            response.getWriter().write("{\"error\": \"Audio file not found\"}");
+	            return;
+	        }
+	        
+	        System.out.println("오디오 파일 발견: " + foundPath);
+	        
+	        // Content-Type 및 헤더 설정
+	        response.setContentType("audio/mpeg");
+	        response.setContentLength((int) audioFile.length());
+	        response.setHeader("Accept-Ranges", "bytes");
+	        response.setHeader("Cache-Control", "public, max-age=3600");
+	        
+	        // CORS 헤더 추가
+	        response.setHeader("Access-Control-Allow-Origin", "*");
+	        response.setHeader("Access-Control-Allow-Methods", "GET");
+	        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+	        
+	        // 파일 스트리밍
+	        try (FileInputStream fis = new FileInputStream(audioFile);
+	             BufferedInputStream bis = new BufferedInputStream(fis);
+	             OutputStream os = response.getOutputStream()) {
+	            
+	            byte[] buffer = new byte[8192];
+	            int bytesRead;
+	            
+	            while ((bytesRead = bis.read(buffer)) != -1) {
+	                os.write(buffer, 0, bytesRead);
+	            }
+	            
+	            os.flush();
+	        }
+	        
+	        System.out.println("오디오 파일 전송 완료: " + filename);
+	        
+	    } catch (FileNotFoundException e) {
+	        System.err.println("파일을 찾을 수 없음: " + e.getMessage());
+	        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+	        
+	    } catch (IOException e) {
+	        System.err.println("파일 전송 중 IO 오류: " + e.getMessage());
+	        e.printStackTrace();
+	        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+	        
+	    } catch (Exception e) {
+	        System.err.println("파일 서빙 중 예외 발생: " + e.getMessage());
+	        e.printStackTrace();
+	        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+	    }
+	}
+
+	// 기존 textToSpeech 메서드에서 URL 생성 부분만 수정
 	@RequestMapping(value = "/textToSpeech", method = RequestMethod.POST)
 	public void textToSpeech(HttpServletRequest request, HttpServletResponse response) throws Exception {
 	    String text = request.getParameter("text");
@@ -98,9 +186,8 @@ public class CloudVoiceController {
 	            is.close();
 	            outputStream.close();
 	            
-	            // 웹에서 접근 가능한 URL 생성
-	            String contextPath = request.getContextPath(); // /cicdtest 또는 빈 문자열
-	            String audioUrl = contextPath + "/resources/audio/" + fileName;
+	            // *** 핵심 변경: 컨트롤러를 통한 URL 생성 ***
+	            String audioUrl = "/voice/serveAudio/" + fileName;
 	            
 	            json.put("success", true);
 	            json.put("audioUrl", audioUrl);
