@@ -645,7 +645,7 @@ function playTextToSpeech(text, content) {
 // 개선된 오디오 재생 함수
 function playAudio(audioUrl) {
     console.log('오디오 재생 시작:', audioUrl);
-    
+    alert("audioUrl : " + audioUrl)
     // 이전 오디오 정리
     if (window.currentAudio) {
         window.currentAudio.pause();

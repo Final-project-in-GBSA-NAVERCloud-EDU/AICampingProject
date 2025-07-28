@@ -81,7 +81,6 @@ public class CloudVoiceController {
 	                dir.mkdirs();
 	            }
 	            
-	            
 	            File f = new File(filePath);
 	            f.createNewFile();
 	            FileOutputStream outputStream = new FileOutputStream(f);
@@ -93,7 +92,7 @@ public class CloudVoiceController {
 	            outputStream.close();
 	            
 	            json.put("success", true);
-	            json.put("audioUrl", "http://final-lb-107508807-f470e9e7c18c.kr.lb.naverncp.com"+"/resources/audio/" + fileName);
+	            json.put("audioUrl", "/resources/audio/" + fileName);
 	            json.put("message", "TTS 생성 완료");
 	            
 	        } else {
