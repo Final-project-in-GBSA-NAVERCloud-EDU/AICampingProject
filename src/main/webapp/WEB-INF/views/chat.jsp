@@ -83,7 +83,7 @@
                         <i class="fas fa-users"></i>
                         <span>가족 캠핑장 추천</span>
                     </div>
-                    <div class="prompt-card" onclick="sendSuggestedPrompt('캠핑에서 만들 수 있는 간단한 요리 레시피를 알려주세요')">
+                    <div class="prompt-card" onclick="sendSuggestedPrompt('오늘 판교 날씨 알려줘')">
                         <i class="fas fa-utensils"></i>
                         <span>캠핑 요리 레시피</span>
                     </div>
@@ -96,13 +96,14 @@
 
             <div class="chat-input-container">
                 <div class="chat-input">
+                	<div id="imagePreview" class="image-preview-container" style="display: none;"></div>
                 	<button class="voice-btn" title="음성 인식" onclick="startRecording()">
                         <i class="fas fa-microphone"></i>
                     </button>
-                    <button class="file-btn" title="파일 첨부">
-                        <i class="fas fa-paperclip"></i>
+                    <button class="file-btn" title="이미지 첨부" onclick="document.getElementById('imageInput').click()">
+                        <i class="fas fa-image"></i>
                     </button>
-                    <input type="file" id="fileInput" style="display: none;" accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)">
+                    <input type="file" id="imageInput" accept="image/*" onchange="handleImageAttachment(event)" style="display: none;">
                     <input type="text" id="messageInput" placeholder="캠핑에 대해 무엇이든 물어보세요..." onkeypress="handleKeyPress(event)">
                     <button onclick="sendMessage()" class="send-btn">
                         <i class="fas fa-paper-plane"></i>

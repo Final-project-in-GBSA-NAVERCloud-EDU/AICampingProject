@@ -12,6 +12,7 @@ public class UserChatHistoryVO {
 	private String extra_data;
 	private String ask_create_at;
 	private String answer_create_at;
+	private String img_url;
 	
 	
 	public String getOrder() {
@@ -62,5 +63,12 @@ public class UserChatHistoryVO {
 	public void setAnswer_create_at(String answer_create_at) {
 		this.answer_create_at = answer_create_at;
 	}
+	public String getImg_url() {
+		return img_url;
+	}
+	public void setImg_url(String img_url) {
+		this.img_url = img_url;
+	}
+	
 	
 }

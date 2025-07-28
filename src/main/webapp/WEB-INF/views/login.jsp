@@ -18,6 +18,7 @@
             <source src="/resources/video/camp.mp4" type="video/mp4">
         </video>
         <div class="auth-video-overlay"></div>
+        <audio id="login-audio" src="/resources/video/campIntro.mp3" autoplay muted></audio>
     <div class="auth-container">
         <div class="auth-box">
             <div class="auth-header">

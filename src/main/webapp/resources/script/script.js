@@ -338,7 +338,7 @@ function showWelcomeMessage() {
             </div>
             <div class="prompt-card" onclick="sendSuggestedPrompt('캠핑에서 만들 수 있는 간단한 요리 레시피를 알려주세요')">
                 <i class="fas fa-utensils"></i>
-                <span>캠핑 요리 레시피</span>
+                <span>오늘 판교 날씨</span>
             </div>
             <div class="prompt-card" onclick="sendSuggestedPrompt('캠핑 안전 수칙과 주의사항을 알려주세요')">
                 <i class="fas fa-shield-alt"></i>

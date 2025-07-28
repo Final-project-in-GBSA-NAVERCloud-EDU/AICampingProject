@@ -44,6 +44,7 @@ public class ChatLibraryController {
 	    String message = request.getParameter("message");
 	    String selectedChatRoomId = request.getParameter("selectedChatRoomId");
 	    String newChatRoomId = request.getParameter("newChatRoomId");
+	    String images = request.getParameter("images");
 	    
 	    int result = 0;
 	    int uResult = 0;
@@ -51,6 +52,7 @@ public class ChatLibraryController {
 	    
 	    JSONObject json = new JSONObject();
 	    
+	    System.out.println("images : " + images);
 	    // 새 채팅방 생성 처리
 	    if (newChatRoomId != null && !newChatRoomId.trim().isEmpty()) {
 	        try {
@@ -109,6 +111,7 @@ public class ChatLibraryController {
 	    
 	    JsonHndr.print(json, response);
 	}
+
 	
 	
 	@RequestMapping(value = "/getChatRooms", method = RequestMethod.GET)

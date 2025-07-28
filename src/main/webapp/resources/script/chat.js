@@ -15,6 +15,26 @@ function getMySQLDatetimeString() {
     return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
 }
 
+// 타임스탬프 포맷팅 함수
+function formatTimestamp(timestamp) {
+    if (!timestamp) return '방금 전';
+    
+    try {
+        const date = new Date(timestamp);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const hh = String(date.getHours()).padStart(2, '0');
+        const mi = String(date.getMinutes()).padStart(2, '0');
+        const ss = String(date.getSeconds()).padStart(2, '0');
+
+        return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    } catch (error) {
+        console.error('타임스탬프 포맷 오류:', error);
+        return '방금 전';
+    }
+}
+
 // 로컬 채팅 히스토리 로드 (로그인하지 않은 사용자)
 function loadLocalChatHistory() {
     const savedHistory = localStorage.getItem('campingGPTTempHistory');
@@ -35,7 +55,12 @@ function displayLocalChatHistory() {
     showWelcomeMessage();
 
     chatHistory.forEach(message => {
-        displayMessage(message.content, message.sender === 'user', false, getMySQLDatetimeString());
+        const formattedTime = formatTimestamp(message.timestamp);
+        if (message.images && message.images.length > 0) {
+            displayMessageWithImages(message.content, message.images, message.sender === 'user', formattedTime);
+        } else {
+            displayMessage(message.content, message.sender === 'user', false, formattedTime);
+        }
     });
 }
 
@@ -57,7 +82,10 @@ function sendMessage() {
     const messageInput = document.getElementById('messageInput');
     const message = messageInput.value.trim();
 
-    if (!message) return;
+    if (!message && attachedFiles.length === 0) return;
+
+    // 첨부된 이미지 저장
+    const currentAttachments = [...attachedFiles];
 
     // 첫 메시지인 경우 채팅방 생성
     if (isFirstMessageInChat()) {
@@ -73,29 +101,29 @@ function sendMessage() {
             currentChatId = 'new_' + Date.now().toString();
         }
         setFirstMessageFlag(false);
-        
-//        displayMessageWithImages(message, attachedFiles, true);
-
-        messageInput.value = '';
-        
-        // 첨부 파일 초기화
-        const currentAttachments = [...attachedFiles];
-        clearAllAttachments();
-        
     }
 
-    // 사용자 메시지 표시
-    displayMessage(message, true, true, getMySQLDatetimeString());
+    // 이미지가 첨부된 경우 이미지와 함께 메시지 표시
+    if (currentAttachments.length > 0) {
+        displayMessageWithImages(message, currentAttachments, true, getMySQLDatetimeString());
+    } else {
+        // 텍스트만 있는 경우 일반 메시지 표시
+        displayMessage(message, true, true, getMySQLDatetimeString());
+    }
 
     messageInput.value = '';
+
+    // 첨부 파일 초기화
+    clearAllAttachments();
+    
     showTypingIndicator();
 
     if (currentUser) {
         // 로그인한 사용자 - 서버에 메시지 전송
-        sendMessageToServer(message);
+        sendMessageToServer(message, currentAttachments);
     } else {
         // 게스트 사용자 - 로컬 저장 및 AI 응답
-        saveLocalMessage(message, 'user', currentChatId);
+        saveLocalMessage(message, 'user', currentChatId, currentAttachments);
 
         // AI 응답 시뮬레이션
         setTimeout(() => {
@@ -117,16 +145,12 @@ function sendMessage() {
                     saveLocalMessage(aiResponse, 'ai', currentChatId);
                 }
             });
-            
 
             // 로컬 채팅방 목록 업데이트 및 현재 채팅방 선택 유지
             renderLocalChatRooms();
             maintainChatRoomSelection();
         }, 1500 + Math.random() * 1000);
     }
-    
-    
-
 }
 
 // 채팅방 선택 상태 유지 함수
@@ -166,15 +190,27 @@ function displayMessage(content, isUser, animate = true, currentTime) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
 
-    let imageHtml = '';
-
-    // AI 메시지에 음성 듣기 버튼 추가
-    let audioButton = '';
+    // AI 메시지에 음성 듣기 버튼과 복사 버튼 추가
+    let messageButtons = '';
     if (!isUser && content.trim()) {
         const messageId = 'msg_' + Date.now();
-        audioButton = `<button class="audio-btn" onclick="playTextToSpeech('${messageId}', \`${content.replace(/`/g, '\\`').replace(/'/g, "\\'")}\`)" title="음성으로 듣기">
-            <i class="fas fa-volume-up"></i>
-        </button>`;
+        // 안전한 문자열 이스케이프 처리
+        const safeContent = content
+            .replace(/\\/g, '\\\\')  // 백슬래시
+            .replace(/'/g, "\\'")    // 단일 따옴표
+            .replace(/"/g, '\\"')    // 이중 따옴표
+            .replace(/`/g, '\\`')    // 백틱
+            .replace(/\r?\n/g, '\\n') // 줄바꿈
+            .replace(/<br\s*\/?>/gi, '\\n'); // HTML 줄바꿈을 일반 줄바꿈으로
+
+        messageButtons = `
+            <button class="read-btn" onclick="playTextToSpeech('${messageId}', \`${safeContent}\`)" title="음성으로 듣기">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="copy-btn" onclick="copyMessage(this, '${safeContent}')">
+                <i class="fas fa-copy"></i>
+            </button>
+        `;
     }
 
     messageDiv.innerHTML = `
@@ -182,11 +218,10 @@ function displayMessage(content, isUser, animate = true, currentTime) {
             <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
         </div>
         <div class="message-content">
-            ${imageHtml}
             <div class="message-text">${content}</div>
             <div class="message-time">
                 ${currentTime}
-                ${audioButton}
+                ${messageButtons}
             </div>
         </div>
     `;
@@ -205,29 +240,115 @@ function displayMessage(content, isUser, animate = true, currentTime) {
     }
 }
 
-// 메시지 저장
-function saveMessage(content, sender) {
+// 이미지와 함께 메시지 표시
+function displayMessageWithImages(content, images, isUser, currentTime) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+
+    let imageHtml = '';
+    if (images && images.length > 0) {
+        imageHtml = '<div class="message-images">';
+        images.forEach(image => {
+            const imageUrl = image.url || image.dataUrl;
+            imageHtml += `<img src="${imageUrl}" alt="${image.name}" class="message-image" onclick="openImageModal('${imageUrl}')">`;
+        });
+        imageHtml += '</div>';
+    }
+
+    // AI 메시지에 음성 듣기 버튼과 복사 버튼 추가
+    let messageButtons = '';
+    if (!isUser && content.trim()) {
+        const messageId = 'msg_' + Date.now();
+        const safeContent = content
+            .replace(/\\/g, '\\\\')
+            .replace(/'/g, "\\'")
+            .replace(/"/g, '\\"')
+            .replace(/`/g, '\\`')
+            .replace(/\r?\n/g, '\\n')
+            .replace(/<br\s*\/?>/gi, '\\n');
+
+        messageButtons = `
+            <button class="read-btn" onclick="playTextToSpeech('${messageId}', \`${safeContent}\`)" title="음성으로 듣기">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="copy-btn" onclick="copyMessage(this, '${safeContent}')">
+                <i class="fas fa-copy"></i>
+            </button>
+        `;
+    }
+
+    const messageTextClass = content ? 'message-text has-image' : 'message-text image-only';
+
+    messageDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
+        </div>
+        <div class="message-content">
+            ${imageHtml}
+            ${content ? `<div class="${messageTextClass}">${content}</div>` : ''}
+            <div class="message-time">
+                ${currentTime}
+                ${messageButtons}
+            </div>
+        </div>
+    `;
+
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // 애니메이션 효과
+    messageDiv.style.opacity = '0';
+    messageDiv.style.transform = 'translateY(20px)';
+    setTimeout(() => {
+        messageDiv.style.transition = 'all 0.3s ease';
+        messageDiv.style.opacity = '1';
+        messageDiv.style.transform = 'translateY(0)';
+    }, 50);
+}
+
+// 로컬 메시지 저장 (이미지 포함)
+function saveLocalMessage(content, sender, chatId, images = []) {
+    if (!content && (!images || images.length === 0)) {
+        console.error('메시지 내용 또는 이미지가 필요합니다.');
+        return;
+    }
+
+    // 이미지를 base64로 변환하여 로컬스토리지에 저장
+    const processedImages = images.map(image => ({
+        name: image.name,
+        type: image.type,
+        dataUrl: image.url // 이미 dataURL인 경우
+    }));
+
+    // 메시지 객체 생성
     const message = {
         content: content,
         sender: sender,
         timestamp: new Date().toISOString(),
-        chatId: currentChatId
+        chatId: chatId,
+        images: processedImages
     };
 
-    if (currentUser) {
-        // 로그인한 사용자의 경우 서버에 저장
-        saveMessageToServer(message);
-    } else {
-        // 로그인하지 않은 사용자의 경우 로컬 저장
-        chatHistory.push(message);
-        saveLocalChatHistory();
+    // 로컬 스토리지에서 기존 메시지 히스토리 가져오기
+    const savedHistory = localStorage.getItem('campingGPTTempHistory');
+    let allMessages = [];
+
+    if (savedHistory) {
+        allMessages = JSON.parse(savedHistory);
     }
+
+    // 새 메시지 추가
+    allMessages.push(message);
+
+    // 로컬 스토리지에 저장
+    localStorage.setItem('campingGPTTempHistory', JSON.stringify(allMessages));
+
+    console.log('로컬 메시지 저장됨:', message);
 }
 
-
-
-// 서버에 메시지 전송
-function sendMessageToServer(message) {
+// 서버에 메시지 전송 (이미지 포함)
+function sendMessageToServer(message, attachments = []) {
     const currentTime = getMySQLDatetimeString();
     let selectedChatRoomId = null;
     let newChatRoomId = null;
@@ -245,6 +366,17 @@ function sendMessageToServer(message) {
         console.log('기존 채팅방 사용 - selectedChatRoomId:', selectedChatRoomId);
     }
 
+    // 이미지가 첨부된 경우 먼저 이미지 업로드
+    if (attachments.length > 0) {
+        sendMessageWithImages(message, uploadedImages, currentTime, selectedChatRoomId, newChatRoomId, isNewChat);
+    } else {
+        sendMessageWithImages(message, [], currentTime, selectedChatRoomId, newChatRoomId, isNewChat);
+    }
+}
+
+
+// 이미지와 함께 메시지 전송
+function sendMessageWithImages(message, images, currentTime, selectedChatRoomId, newChatRoomId, isNewChat) {
     $.ajax({
         url: '/ChatLibrary/sendMessage',
         method: 'POST',
@@ -254,7 +386,8 @@ function sendMessageToServer(message) {
             savedUser: currentUser,
             currentTime: currentTime,
             selectedChatRoomId: selectedChatRoomId,
-            newChatRoomId: newChatRoomId
+            newChatRoomId: newChatRoomId,
+            images: JSON.stringify(images)
         },
         success: function (response) {     	
             hideTypingIndicator();
@@ -264,7 +397,7 @@ function sendMessageToServer(message) {
             if (isNewChat && newChatRoomId) {
                 currentChatId = newChatRoomId.toString();
                 console.log('currentChatId 업데이트:', currentChatId);
-                updateChatRoomTitleWithMessage(currentChatId,message);
+                updateChatRoomTitleWithMessage(currentChatId, message);
             }
 
             // AI 응답 대기 표시
@@ -272,8 +405,6 @@ function sendMessageToServer(message) {
 
             // AI 응답 시뮬레이션
             setTimeout(() => {
-//                hideTypingIndicator();
-//                const aiResponse = generateAIResponse(message);
                 $.ajax({
                     url: 'http://49.50.131.0:8000/chat',  // Python API 주소
                     type: 'GET',
@@ -294,11 +425,6 @@ function sendMessageToServer(message) {
                         sendAiMessage(currentUser, finalChatRoomId, aiResponse);
                     }
                 });
-                
-//                displayMessage(aiResponse, false);
-                
-                // AI 응답 저장 - 업데이트된 currentChatId 사용
-                
             }, 1500 + Math.random() * 1000);
         },
         error: function (xhr, status, error) {
@@ -405,9 +531,9 @@ function showWelcomeMessage() {
             <i class="fas fa-users"></i>
             <span>가족 캠핑장 추천</span>
         </div>
-        <div class="prompt-card" onclick="sendSuggestedPrompt('캠핑에서 만들 수 있는 간단한 요리 레시피를 알려주세요')">
+        <div class="prompt-card" onclick="sendSuggestedPrompt('오늘 판교 날씨 알려줘')">
             <i class="fas fa-utensils"></i>
-            <span>캠핑 요리 레시피</span>
+            <span>오늘 판교 날씨</span>
         </div>
         <div class="prompt-card" onclick="sendSuggestedPrompt('캠핑 안전 수칙과 주의사항을 알려주세요')">
             <i class="fas fa-shield-alt"></i>
@@ -471,8 +597,6 @@ function updateChatRoomTitleWithMessage(chatRoomId, message) {
         success: function (response) {
             console.log('채팅방 제목 업데이트 성공:', response.message);          
             loadChatRoomsFromServer(true);
-            // 채팅방 목록 새로고침
-//            loadChatRoomsFromServer();
         },
         error: function (xhr, status, error) {
             console.error('채팅방 제목 업데이트 실패:', error);
@@ -692,50 +816,17 @@ function stopAudio() {
     hideAudioPlaying();
 }
 
-//파일 업로드 트리거
-function triggerFileUpload() {
-    document.getElementById('fileInput').click();
-}
-
-// 파일 업로드 처리
-function handleFileUpload(event) {
-    const files = Array.from(event.target.files);
-    
-    files.forEach(file => {
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const fileObj = {
-                    file: file,
-                    dataUrl: e.target.result,
-                    name: file.name,
-                    id: Date.now() + Math.random()
-                };
-                
-                attachedFiles.push(fileObj);
-                updateAttachmentPreview();
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-    
-    // 파일 인풋 초기화
-    event.target.value = '';
-}
-
 function startRecording() {
     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
         const mediaRecorder = new MediaRecorder(stream);
         const chunks = [];
     
-        // alert("알러트테스트"); // 마이크 접근 확인
         mediaRecorder.ondataavailable = e => {
             chunks.push(e.data);
         };
         mediaRecorder.start();
-        setTimeout(() => mediaRecorder.stop(), 3000); // 2초 녹음
+        setTimeout(() => mediaRecorder.stop(), 3000); // 3초 녹음
         mediaRecorder.onstop = () => {
-            // ✅ MIME 타입 수정: voice/mp3 → audio/mp3 또는 생략
             const blob = new Blob(chunks, { type: "audio/mp3" });
             console.log("🔊 녹음된 형식:", blob.type);
             const formData = new FormData();
@@ -766,4 +857,171 @@ function startRecording() {
         alert("❌ 마이크 권한이 필요합니다");
         console.error("마이크 오류:", err);
     });
+}
+
+// 메시지 복사
+function copyMessage(button, text) {
+    // HTML 태그 제거
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = text;
+    const cleanText = tempDiv.textContent || tempDiv.innerText || '';
+
+    navigator.clipboard.writeText(cleanText).then(() => {
+        // 복사 성공 표시
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> 복사됨';
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('copied');
+        }, 2000);
+    }).catch(err => {
+        console.error('복사 실패:', err);
+        alert('복사에 실패했습니다.');
+    });
+}
+
+//이미지를 서버에 업로드
+//function uploadImageToServer(imageFile, callback) {
+//    if (!currentUser) {
+//        // 게스트 사용자는 이미지 업로드 불가
+//        alert('이미지 업로드는 로그인 후 이용할 수 있습니다.');
+//        return;
+//    }
+//
+//    const formData = new FormData();
+//    formData.append('image', imageFile);
+//    formData.append('userId', currentUser.id);
+//    formData.append('chatRoomId', currentChatId || '');
+//
+//    $.ajax({
+//        url: '/ChatLibrary/uploadImage',
+//        method: 'POST',
+//        data: formData,
+//        processData: false,
+//        contentType: false,
+//        success: function(response) {
+//            if (response.success) {
+//                console.log('이미지 업로드 성공:', response.imageUrl);
+//                if (callback) callback(response.imageUrl);
+//            } else {
+//                console.error('이미지 업로드 실패:', response.message);
+//                alert('이미지 업로드에 실패했습니다: ' + response.message);
+//            }
+//        },
+//        error: function(xhr, status, error) {
+//            console.error('이미지 업로드 오류:', error);
+//            alert('이미지 업로드 중 오류가 발생했습니다.');
+//        }
+//    });
+//}
+
+//이미지 첨부 처리
+function handleImageAttachment(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 파일 타입 검증
+    if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 첨부할 수 있습니다.');
+        return;
+    }
+
+    // 파일 크기 검증 (5MB 제한)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+        alert('이미지 크기는 5MB 이하여야 합니다.');
+        return;
+    }
+
+    // 첨부 파일 배열에 추가
+    attachedFiles.push({
+        file: file,
+        type: 'image',
+        name: file.name,
+        url: URL.createObjectURL(file)
+    });
+
+    // 미리보기 표시
+    showImagePreview(file);
+
+    console.log('이미지 첨부됨:', file.name);
+}
+
+// 이미지 미리보기 표시
+function showImagePreview(file) {
+    const previewContainer = document.getElementById('imagePreview');
+    if (!previewContainer) return;
+
+    const imageUrl = URL.createObjectURL(file);
+
+    previewContainer.innerHTML = `
+        <div class="image-preview-item">
+            <img src="${imageUrl}" alt="첨부 이미지" class="preview-image">
+            <div class="image-info">
+                <span class="image-name">${file.name}</span>
+                <button class="remove-image-btn" onclick="removeImagePreview()" title="이미지 제거">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+    previewContainer.style.display = 'block';
+}
+
+// 이미지 미리보기 제거
+function removeImagePreview() {
+    const previewContainer = document.getElementById('imagePreview');
+    if (previewContainer) {
+        previewContainer.innerHTML = '';
+        previewContainer.style.display = 'none';
+    }
+
+    // 첨부 파일 배열에서 제거
+    attachedFiles = attachedFiles.filter(file => file.type !== 'image');
+
+    // 파일 입력 초기화
+    const imageInput = document.getElementById('imageInput');
+    if (imageInput) {
+        imageInput.value = '';
+    }
+
+    console.log('이미지 미리보기 제거됨');
+}
+
+// 모든 첨부 파일 제거
+function clearAllAttachments() {
+    attachedFiles = [];
+    removeImagePreview();
+}
+
+//이미지 모달 열기
+function openImageModal(imageUrl) {
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.innerHTML = `
+        <div class="image-modal-content">
+            <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+            <img src="${imageUrl}" alt="확대 이미지" class="modal-image">
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // 모달 클릭 시 닫기
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeImageModal();
+        }
+    });
+}
+
+// 이미지 모달 닫기
+function closeImageModal() {
+    const modal = document.querySelector('.image-modal');
+    if (modal) {
+        modal.remove();
+    }
 }

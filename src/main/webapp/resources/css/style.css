@@ -1197,3 +1197,350 @@ body {
 .tts-button:active {
     transform: scale(0.95);
 }
+
+/* 첨부된 이미지 프리뷰 */
+.image-preview {
+    margin: 1rem 0;
+    position: relative;
+}
+
+.image-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    border: 1px solid #404040;
+}
+
+.image-preview .remove-image {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+/* 메시지 복사 버튼 */
+.message-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.copy-btn, .read-btn {
+    background: transparent;
+    border: 1px solid #404040;
+    color: #888;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+/*     display: flex; */
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.copy-btn:hover, .read-btn:hover {
+    background: #404040;
+    color: #7fd85a;
+    border-color: #7fd85a;
+}
+
+.copy-btn.copied {
+    background: #7fd85a;
+    color: #000000;
+    border-color: #7fd85a;
+}
+
+
+/* 제안 프롬프트 */
+.message-btn.audio-btn:hover {
+    color: #2196F3;
+    border-color: #2196F3;
+}
+
+/* 이미지 첨부 관련 스타일 */
+.image-preview-container {
+    background: #2a2a2a;
+    border: 1px solid #404040;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.image-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.preview-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #555;
+}
+
+.image-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.image-name {
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+}
+
+.remove-image-btn {
+    background: transparent;
+    border: 1px solid #666;
+    color: #ff6b6b;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-image-btn:hover {
+    background: #ff6b6b;
+    color: white;
+}
+
+.attach-btn {
+    background: transparent;
+    border: 1px solid #404040;
+    color: #888;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 8px;
+}
+
+.attach-btn:hover {
+    background: #404040;
+    color: #7fd85a;
+    border-color: #7fd85a;
+}
+
+.message-images {
+    margin-bottom: 8px;
+}
+
+.message-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 8px;
+    margin-bottom: 4px;
+    transition: transform 0.2s ease;
+}
+
+.message-image:hover {
+    transform: scale(1.02);
+}
+
+/* 이미지 모달 */
+.image-modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+}
+
+.image-modal-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.image-modal-close:hover {
+    color: #7fd85a;
+}
+
+.gallery-btn {
+    background: transparent;
+    border: 1px solid #404040;
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.gallery-btn:hover {
+    background: #2a2a2a;
+    border-color: #7fd85a;
+    color: #7fd85a;
+}
+
+.gallery-btn i {
+    font-size: 1rem;
+}
+
+/* 이미지 갤러리 모달 */
+.image-gallery-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.gallery-modal-content {
+    background: #2a2a2a;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    width: 800px;
+}
+
+.gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #404040;
+    padding-bottom: 1rem;
+}
+
+.gallery-header h3 {
+    color: #ffffff;
+    margin: 0;
+}
+
+.gallery-close {
+    color: #888;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gallery-close:hover {
+    color: #ffffff;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.gallery-item {
+    background: #404040;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.gallery-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.gallery-item-info {
+    padding: 0.75rem;
+}
+
+.image-name {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0 0 0.25rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.image-date {
+    color: #888;
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .gallery-modal-content {
+        margin: 1rem;
+        padding: 1rem;
+        width: auto;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .gallery-item img {
+        height: 120px;
+    }
+}
+
+    gap: 1rem;
+    font-size: 1.1rem;
+}

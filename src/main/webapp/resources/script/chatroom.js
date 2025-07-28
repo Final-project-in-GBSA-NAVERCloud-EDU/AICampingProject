@@ -72,7 +72,8 @@ function renderChatRooms() {
 
             // 채팅방 제목 처리
             let title = room.title || '새 대화';
-            let createChat = room.create_at.slice(0, 16);
+//            let dateStr = room.create_at.toISOString();
+            let createChat = room.create_at; 
             if (title === '새 대화' && room.create_at) {
                 // create_at 기반으로 제목 생성
                 const createDate = new Date(room.create_at);
@@ -291,7 +292,12 @@ function loadLocalChatMessages(chatId) {
     chatMessages
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
         .forEach(message => {
-            displayMessage(message.content, message.sender === 'user', false);
+            const formattedTime = formatTimestamp(message.timestamp);
+            if (message.images && message.images.length > 0) {
+                displayMessageWithImages(message.content, message.images, message.sender === 'user', formattedTime);
+            } else {
+                displayMessage(message.content, message.sender === 'user', false, formattedTime);
+            }
         });
 
     console.log(`로컬 채팅방 ${chatId}의 메시지 ${chatMessages.length}개 로드됨`);
