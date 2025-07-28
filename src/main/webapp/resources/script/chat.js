@@ -879,15 +879,15 @@ function startRecording() {
 
 
 
-// 메시지 복사
+//메시지 복사
 function copyMessage(button, text) {
     // HTML 태그 제거
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = text;
     const cleanText = tempDiv.textContent || tempDiv.innerText || '';
 
-    navigator.clipboard.writeText(cleanText).then(() => {
-        // 복사 성공 표시
+    // 복사 성공 표시 함수
+    function showCopySuccess() {
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-check"></i> 복사됨';
         button.classList.add('copied');
@@ -896,10 +896,63 @@ function copyMessage(button, text) {
             button.innerHTML = originalText;
             button.classList.remove('copied');
         }, 2000);
-    }).catch(err => {
-        console.error('복사 실패:', err);
+    }
+
+    // 복사 실패 표시 함수
+    function showCopyError() {
+        console.error('복사 실패');
         alert('복사에 실패했습니다.');
-    });
+    }
+
+    // 최신 Clipboard API 사용 (HTTPS 환경에서만 작동)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cleanText).then(() => {
+            showCopySuccess();
+        }).catch(err => {
+            console.warn('Clipboard API 실패, 폴백 방법 시도:', err);
+            fallbackCopyTextToClipboard(cleanText, showCopySuccess, showCopyError);
+        });
+    } else {
+        // 폴백 방법 사용
+        fallbackCopyTextToClipboard(cleanText, showCopySuccess, showCopyError);
+    }
+}
+
+// 폴백 복사 방법 (구형 브라우저나 HTTP 환경에서 사용)
+function fallbackCopyTextToClipboard(text, onSuccess, onError) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    
+    // 화면에서 숨기기
+    textArea.style.position = 'fixed';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    textArea.style.opacity = '0';
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            onSuccess();
+        } else {
+            onError();
+        }
+    } catch (err) {
+        console.error('폴백 복사 실패:', err);
+        onError();
+    }
+    
+    document.body.removeChild(textArea);
 }
 
 //이미지를 서버에 업로드
