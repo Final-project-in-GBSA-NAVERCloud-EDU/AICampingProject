@@ -72,7 +72,8 @@ public class CloudVoiceController {
 	            
 	            // 파일명 생성 (타임스탬프 사용)
 	            String fileName = "tts_" + System.currentTimeMillis() + ".mp3";
-	            String filePath = request.getSession().getServletContext().getRealPath("/resources/audio/") + fileName;
+//	            String filePath = request.getSession().getServletContext().getRealPath("/resources/audio/") + fileName;
+	            String filePath =  "/opt/tomcat9/webapps/cicdtest/resources/audio/" + fileName;
 	            
 	            System.out.println("filePath : " + filePath);
 	            // 디렉토리 생성
