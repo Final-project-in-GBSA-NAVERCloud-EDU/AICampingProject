@@ -822,6 +822,7 @@ function startRecording() {
         console.error("navigator.mediaDevices 또는 getUserMedia가 없습니다.");
         return;
     }
+    
 
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
