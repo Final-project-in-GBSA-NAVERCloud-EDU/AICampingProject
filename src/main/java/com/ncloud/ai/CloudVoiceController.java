@@ -187,7 +187,7 @@ public class CloudVoiceController {
 	            outputStream.close();
 	            
 	            // *** 핵심 변경: 컨트롤러를 통한 URL 생성 ***
-	            String audioUrl = audioDir + fileName;
+	            String audioUrl = "final-lb-107508807-f470e9e7c18c.kr.lb.naverncp.com" + audioDir + fileName;
 	            
 	            json.put("success", true);
 	            json.put("audioUrl", audioUrl);
