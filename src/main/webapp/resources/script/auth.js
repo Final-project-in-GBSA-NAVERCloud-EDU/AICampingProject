@@ -256,18 +256,22 @@ function downloadAPK() {
     }
 }
 
-////브라우저 정책상 autoplay를 위해 muted가 필요함
-//window.addEventListener('DOMContentLoaded', () => {
-//  const audio = document.getElementById('login-audio');
-//  
-//  // muted 상태에서 자동 재생 시도
-//  audio.play().catch(error => {
-//    console.warn("자동 재생이 차단됨:", error);
-//    // 사용자가 클릭하면 재생되도록 fallback 처리
-//    document.addEventListener('click', () => {
-//      audio.muted = false;
-//      audio.play();
-//    }, { once: true });
-//  });
-//});
+function playLoginIntro() {
+	  const audio = document.getElementById('login-audio');
+
+	  // muted 상태에서 autoplay 허용 시도
+	  audio.muted = true;
+	  audio.play().then(() => {
+	    console.log("자동 재생 성공 (muted 상태)");
+	  }).catch(error => {
+	    console.warn("자동 재생이 차단됨:", error);
+
+	    // fallback: 사용자가 다시 클릭하면 소리와 함께 재생
+	    document.addEventListener('click', () => {
+	      audio.muted = false;
+	      audio.play();
+	    }, { once: true });
+	  });
+	}
+
 
