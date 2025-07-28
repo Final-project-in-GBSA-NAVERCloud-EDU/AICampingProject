@@ -39,11 +39,11 @@ public class CampingApiController {
             
             ResponseEntity<Map> pythonResponse = restTemplate.getForEntity(requestUrl, Map.class);
 
+            System.out.println("");
             if (pythonResponse.getStatusCode().is2xxSuccessful()) {
                 // Python 응답 파싱
                 Map<String, Object> responseBody = pythonResponse.getBody();
                 String aiResponse = null;
-                
                 if (responseBody != null) {
                     // Python API 응답 구조에 따라 조정
                     aiResponse = (String) responseBody.get("answer");

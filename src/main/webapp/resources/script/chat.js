@@ -128,7 +128,7 @@ function sendMessage() {
         // AI 응답 시뮬레이션
         setTimeout(() => {
             $.ajax({
-                url: '/Api/AiApi',  // Python API 주소
+                url: 'http://10.0.1.20:8000/chat',  // Python API 주소
                 type: 'GET',
                 data: { message: message },  
                 success: function(data) {
@@ -406,7 +406,7 @@ function sendMessageWithImages(message, images, currentTime, selectedChatRoomId,
             // AI 응답 시뮬레이션
             setTimeout(() => {
                 $.ajax({
-                    url: '/Api/AiApi',  // Python API 주소
+                    url: 'http://10.0.1.20:8000/chat',  // Python API 주소
                     type: 'GET',
                     data: { message: message },  
                     success: function(data) {
