@@ -177,7 +177,6 @@ public class CloudVoiceController {
 
 	@PostMapping("/speechToText")
 	public void speechToText(@RequestParam("file") MultipartFile file, HttpServletResponse response) {
-
 		JSONObject json = new JSONObject();
 		try {
 			String language = "Kor";
