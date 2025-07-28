@@ -77,7 +77,7 @@ public class CloudVoiceController {
 	            
 	            System.out.println("filePath : " + filePath);
 	            // 디렉토리 생성
-	            File dir = new File(request.getSession().getServletContext().getRealPath("/resources/audio/"));
+	            File dir = new File("/opt/tomcat9/webapps/cicdtest/resources/audio/");
 	            if (!dir.exists()) {
 	                dir.mkdirs();
 	            }
@@ -93,7 +93,7 @@ public class CloudVoiceController {
 	            outputStream.close();
 	            
 	            json.put("success", true);
-	            json.put("audioUrl", "/opt/tomcat9/webapps/cicdtest/resources/audio/" + fileName);
+	            json.put("audioUrl", "/cicdtest/resources/audio/" + fileName);
 	            json.put("message", "TTS 생성 완료");
 	            
 	        } else {
