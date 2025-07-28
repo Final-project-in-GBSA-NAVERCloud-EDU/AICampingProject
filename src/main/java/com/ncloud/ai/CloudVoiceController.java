@@ -93,7 +93,7 @@ public class CloudVoiceController {
 	            outputStream.close();
 	            
 	            json.put("success", true);
-	            json.put("audioUrl", "/resources/audio/" + fileName);
+	            json.put("audioUrl", "/opt/tomcat9/webapps/cicdtest/resources/audio/" + fileName);
 	            json.put("message", "TTS 생성 완료");
 	            
 	        } else {
