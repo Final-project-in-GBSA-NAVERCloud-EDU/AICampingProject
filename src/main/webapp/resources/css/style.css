@@ -1544,3 +1544,39 @@ body {
     gap: 1rem;
     font-size: 1.1rem;
 }
+
+/* 녹음 인디케이터 스타일 */
+.recording-indicator, .stt-processing {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    z-index: 9999;
+    border: 2px solid #ff4444;
+}
+
+.recording-content, .processing-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.recording-indicator i {
+    color: #ff4444;
+    font-size: 1.5rem;
+}
+
+.stt-processing {
+    border-color: #4CAF50;
+}
+
+.stt-processing i {
+    color: #4CAF50;
+    font-size: 1.5rem;
+}

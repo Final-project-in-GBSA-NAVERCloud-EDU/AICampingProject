@@ -817,64 +817,253 @@ function stopAudio() {
 }
 
 function startRecording() {
+    // 브라우저 지원 여부 확인
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         alert("❌ 이 브라우저는 마이크 녹음을 지원하지 않습니다.");
         console.error("navigator.mediaDevices 또는 getUserMedia가 없습니다.");
         return;
     }
 
-    // HTTPS 환경인지 확인 (브라우저 측에서 막는 문제를 회피)
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-        alert("⚠️ 마이크 사용을 위해 HTTPS 환경으로 접속해주세요.");
-        location.href = "https://" + location.hostname + location.pathname; // 자동 리디렉션
+    // MediaRecorder 지원 여부 확인
+    if (!window.MediaRecorder) {
+        alert("❌ 이 브라우저는 음성 녹음을 지원하지 않습니다.");
+        console.error("MediaRecorder가 지원되지 않습니다.");
         return;
     }
 
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            const mediaRecorder = new MediaRecorder(stream);
-            const chunks = [];
+    // HTTPS 환경인지 확인 (localhost 제외)
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        alert("⚠️ 마이크 사용을 위해 HTTPS 환경으로 접속해주세요.");
+        console.warn("HTTP 환경에서는 마이크 접근이 제한됩니다.");
+        return;
+    }
 
-            mediaRecorder.ondataavailable = e => {
+    // 녹음 시작 표시
+    showRecordingIndicator();
+
+    navigator.mediaDevices.getUserMedia({ 
+        audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 44100
+        } 
+    })
+    .then(stream => {
+        let mediaRecorder;
+        
+        try {
+            // 지원되는 MIME 타입 확인
+            const mimeTypes = [
+                'audio/webm;codecs=opus',
+                'audio/webm',
+                'audio/mp4',
+                'audio/mpeg',
+                'audio/wav'
+            ];
+            
+            let selectedMimeType = '';
+            for (const mimeType of mimeTypes) {
+                if (MediaRecorder.isTypeSupported(mimeType)) {
+                    selectedMimeType = mimeType;
+                    break;
+                }
+            }
+            
+            if (!selectedMimeType) {
+                throw new Error('지원되는 오디오 형식이 없습니다.');
+            }
+            
+            mediaRecorder = new MediaRecorder(stream, { mimeType: selectedMimeType });
+            console.log("🔊 사용된 MIME 타입:", selectedMimeType);
+            
+        } catch (e) {
+            console.warn("특정 MIME 타입 실패, 기본 설정 사용:", e);
+            mediaRecorder = new MediaRecorder(stream);
+        }
+        
+        const chunks = [];
+        let recordingTimeout;
+
+        mediaRecorder.ondataavailable = e => {
+            if (e.data.size > 0) {
                 chunks.push(e.data);
-            };
+            }
+        };
 
-            mediaRecorder.start();
-            setTimeout(() => mediaRecorder.stop(), 3000); // 3초 녹음
+        mediaRecorder.onstart = () => {
+            console.log("🎤 녹음 시작");
+            updateRecordingIndicator("녹음 중...");
+        };
 
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: "audio/webm" }); // mp3 → webm이 더 호환성 높음
-                console.log("🔊 녹음된 형식:", blob.type);
-                const formData = new FormData();
-                formData.append("file", blob, "voice.webm");
+        mediaRecorder.onstop = () => {
+            console.log("⏹️ 녹음 완료");
+            hideRecordingIndicator();
+            
+            clearTimeout(recordingTimeout);
+            stream.getTracks().forEach(track => track.stop());
+            
+            if (chunks.length === 0) {
+                alert("❌ 녹음된 데이터가 없습니다.");
+                return;
+            }
+            
+            const blob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
+            console.log("🔊 녹음된 형식:", blob.type, "크기:", blob.size, "bytes");
+            
+            if (blob.size === 0) {
+                alert("❌ 녹음된 파일이 비어있습니다.");
+                return;
+            }
+            
+            // 파일 확장자 결정
+            let fileExtension = "webm";
+            if (blob.type.includes("mp4")) fileExtension = "mp4";
+            else if (blob.type.includes("mpeg")) fileExtension = "mp3";
+            else if (blob.type.includes("wav")) fileExtension = "wav";
+            
+            const formData = new FormData();
+            formData.append("file", blob, `voice.${fileExtension}`);
 
-                $.ajax({
-                    url: '/voice/speechToText',
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        console.log("✅ STT 응답:", response);
-                        const text = response.text || response.message || "[음성 인식 실패]";
-                        $("#messageInput").val(text);
-                        stream.getTracks().forEach(track => track.stop());
+            // STT 처리 중 표시
+            showSTTProcessing();
 
+            $.ajax({
+                url: '/voice/speechToText',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                timeout: 30000, // 30초 타임아웃
+                success: function(response) {
+                    hideSTTProcessing();
+                    console.log("✅ STT 응답:", response);
+                    
+                    const text = response.text || response.message || "[음성 인식 실패]";
+                    $("#messageInput").val(text);
+                    
+                    if (text && text !== "[음성 인식 실패]" && text !== "[STT 서버 오류]") {
                         sendMessage();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("❌ 음성 인식 오류:", error);
-                        console.error("서버 응답 본문:", xhr.responseText);
-                        $("#messageInput").val("[STT 서버 오류]");
-                        stream.getTracks().forEach(track => track.stop());
+                    } else {
+                        alert("음성을 인식하지 못했습니다. 다시 시도해주세요.");
                     }
-                });
-            };
-        })
-        .catch(err => {
-            alert("❌ 마이크 권한이 필요합니다.");
-            console.error("마이크 접근 오류:", err);
-        });
+                },
+                error: function(xhr, status, error) {
+                    hideSTTProcessing();
+                    console.error("❌ 음성 인식 오류:", error);
+                    console.error("서버 응답 본문:", xhr.responseText);
+                    
+                    let errorMessage = "음성 인식 중 오류가 발생했습니다.";
+                    if (status === 'timeout') {
+                        errorMessage = "음성 처리 시간이 초과되었습니다.";
+                    } else if (xhr.status === 413) {
+                        errorMessage = "음성 파일이 너무 큽니다.";
+                    } else if (xhr.status === 415) {
+                        errorMessage = "지원되지 않는 오디오 형식입니다.";
+                    }
+                    
+                    alert("❌ " + errorMessage);
+                    $("#messageInput").val("[STT 서버 오류]");
+                }
+            });
+        };
+
+        mediaRecorder.onerror = (event) => {
+            console.error("MediaRecorder 오류:", event.error);
+            hideRecordingIndicator();
+            stream.getTracks().forEach(track => track.stop());
+            alert("❌ 녹음 중 오류가 발생했습니다: " + event.error.name);
+        };
+
+        // 녹음 시작
+        try {
+            mediaRecorder.start();
+            
+            // 3초 후 자동 정지
+            recordingTimeout = setTimeout(() => {
+                if (mediaRecorder.state === "recording") {
+                    mediaRecorder.stop();
+                }
+            }, 3000);
+            
+        } catch (e) {
+            console.error("녹음 시작 실패:", e);
+            hideRecordingIndicator();
+            stream.getTracks().forEach(track => track.stop());
+            alert("❌ 녹음을 시작할 수 없습니다: " + e.message);
+        }
+    })
+    .catch(err => {
+        hideRecordingIndicator();
+        console.error("마이크 접근 오류:", err);
+        
+        let errorMessage = "마이크에 접근할 수 없습니다.";
+        if (err.name === 'NotAllowedError') {
+            errorMessage = "마이크 권한이 거부되었습니다. 브라우저 설정에서 마이크 권한을 허용해주세요.";
+        } else if (err.name === 'NotFoundError') {
+            errorMessage = "마이크를 찾을 수 없습니다. 마이크가 연결되어 있는지 확인해주세요.";
+        } else if (err.name === 'NotSupportedError') {
+            errorMessage = "이 브라우저에서는 마이크 기능이 지원되지 않습니다.";
+        } else if (err.name === 'NotReadableError') {
+            errorMessage = "마이크를 사용할 수 없습니다. 다른 앱에서 사용 중일 수 있습니다.";
+        }
+        
+        alert("❌ " + errorMessage);
+    });
+}
+
+// 녹음 상태 표시 함수들
+function showRecordingIndicator() {
+    hideRecordingIndicator(); // 기존 인디케이터 제거
+    
+    const indicator = document.createElement('div');
+    indicator.id = 'recordingIndicator';
+    indicator.className = 'recording-indicator';
+    indicator.innerHTML = `
+        <div class="recording-content">
+            <i class="fas fa-microphone fa-pulse"></i>
+            <span>마이크 준비 중...</span>
+        </div>
+    `;
+    document.body.appendChild(indicator);
+}
+
+function updateRecordingIndicator(message) {
+    const indicator = document.getElementById('recordingIndicator');
+    if (indicator) {
+        const span = indicator.querySelector('span');
+        if (span) {
+            span.textContent = message;
+        }
+    }
+}
+
+function hideRecordingIndicator() {
+    const indicator = document.getElementById('recordingIndicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+function showSTTProcessing() {
+    hideSTTProcessing(); // 기존 인디케이터 제거
+    
+    const processing = document.createElement('div');
+    processing.id = 'sttProcessing';
+    processing.className = 'stt-processing';
+    processing.innerHTML = `
+        <div class="processing-content">
+            <i class="fas fa-cog fa-spin"></i>
+            <span>음성을 텍스트로 변환 중...</span>
+        </div>
+    `;
+    document.body.appendChild(processing);
+}
+
+function hideSTTProcessing() {
+    const processing = document.getElementById('sttProcessing');
+    if (processing) {
+        processing.remove();
+    }
 }
 
 
