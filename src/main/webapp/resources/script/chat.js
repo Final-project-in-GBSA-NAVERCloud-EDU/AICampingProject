@@ -125,39 +125,24 @@ function sendMessage() {
         // 게스트 사용자 - 로컬 저장 및 AI 응답
         saveLocalMessage(message, 'user', currentChatId, currentAttachments);
 
-     // AI 응답 요청 - Java API를 통해 호출
+        // AI 응답 시뮬레이션
         setTimeout(() => {
             $.ajax({
-                url: '/Api/AiApi',  // Java API 엔드포인트
+                url: 'http://49.50.131.0:8000/chat',  // Python API 주소
                 type: 'GET',
-                data: { message: message },
-                timeout: 30000, // 30초 타임아웃
+                data: { message: message },  
                 success: function(data) {
                     hideTypingIndicator();
-                    if (data.msg === "AI 응답성공" && data.response) {
-                        displayMessage(data.response, false, true, getMySQLDatetimeString());
-                        saveLocalMessage(data.response, 'ai', currentChatId);
-                    } else {
-                        const errorResponse = data.response || "AI 응답을 받지 못했습니다.";
-                        displayMessage("⚠️ " + errorResponse, false, true, getMySQLDatetimeString());
-                        saveLocalMessage("⚠️ " + errorResponse, 'ai', currentChatId);
-                    }
+                    const aiResponse = data.answer;
+                    displayMessage(aiResponse, false, true, getMySQLDatetimeString());
+                    saveLocalMessage(aiResponse, 'ai', currentChatId);
                 },
                 error: function(xhr, status, error) {
                     hideTypingIndicator();
-                    console.error('AI API 호출 에러:', error);
-                    let errorMessage = "⚠️ AI 응답 중 오류가 발생했습니다.";
-                    
-                    if (status === 'timeout') {
-                        errorMessage = "⚠️ AI 응답 시간이 초과되었습니다.";
-                    } else if (xhr.status === 400) {
-                        errorMessage = "⚠️ 잘못된 요청입니다.";
-                    } else if (xhr.status >= 500) {
-                        errorMessage = "⚠️ 서버 오류가 발생했습니다.";
-                    }
-                    
-                    displayMessage(errorMessage, false, true, getMySQLDatetimeString());
-                    saveLocalMessage(errorMessage, 'ai', currentChatId);
+                    console.error('Python API 호출 에러:', error);
+                    const aiResponse = "⚠️ AI 응답 중 오류가 발생했습니다."
+                    displayMessage(aiResponse, false, true, getMySQLDatetimeString());
+                    saveLocalMessage(aiResponse, 'ai', currentChatId);
                 }
             });
 
@@ -418,38 +403,26 @@ function sendMessageWithImages(message, images, currentTime, selectedChatRoomId,
             // AI 응답 대기 표시
             showTypingIndicator();
 
-            // AI 응답 요청 - Java API를 통해 호출
+            // AI 응답 시뮬레이션
             setTimeout(() => {
                 $.ajax({
-                    url: '/Api/AiApi',  // Java API 엔드포인트
+                    url: 'http://49.50.131.0:8000/chat',  // Python API 주소
                     type: 'GET',
-                    data: { message: message },
-                    timeout: 30000, // 30초 타임아웃
+                    data: { message: message },  
                     success: function(data) {
                         hideTypingIndicator();
+                        const aiResponse = data.answer;
+                        displayMessage(aiResponse, false, true, getMySQLDatetimeString());
                         const finalChatRoomId = isNewChat ? newChatRoomId : selectedChatRoomId;
-                        
-                        if (data.msg === "AI 응답성공" && data.response) {
-                            displayMessage(data.response, false, true, getMySQLDatetimeString());
-                            sendAiMessage(currentUser, finalChatRoomId, data.response);
-                        } else {
-                            const errorResponse = data.response || "AI 응답을 받지 못했습니다.";
-                            displayMessage("⚠️ " + errorResponse, false, true, getMySQLDatetimeString());
-                            sendAiMessage(currentUser, finalChatRoomId, "⚠️ " + errorResponse);
-                        }
+                        sendAiMessage(currentUser, finalChatRoomId, aiResponse);
                     },
                     error: function(xhr, status, error) {
                         hideTypingIndicator();
-                        console.error('AI API 호출 에러:', error);
+                        console.error('Python API 호출 에러:', error);
+                        const aiResponse = "⚠️ AI 응답 중 오류가 발생했습니다."
+                        displayMessage(aiResponse, false, true, getMySQLDatetimeString());
                         const finalChatRoomId = isNewChat ? newChatRoomId : selectedChatRoomId;
-                        
-                        let errorMessage = "⚠️ AI 응답 중 오류가 발생했습니다.";
-                        if (status === 'timeout') {
-                            errorMessage = "⚠️ AI 응답 시간이 초과되었습니다.";
-                        }
-                        
-                        displayMessage(errorMessage, false, true, getMySQLDatetimeString());
-                        sendAiMessage(currentUser, finalChatRoomId, errorMessage);
+                        sendAiMessage(currentUser, finalChatRoomId, aiResponse);
                     }
                 });
             }, 1500 + Math.random() * 1000);
