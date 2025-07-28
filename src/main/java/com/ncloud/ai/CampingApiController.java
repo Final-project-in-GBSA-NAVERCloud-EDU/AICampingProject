@@ -19,7 +19,8 @@ public class CampingApiController {
 
     // AI API 서버 IP 목록 (우선순위대로)
     private static final String[] AI_SERVER_IPS = {
-        "http://10.0.1.20:8000/chat"
+        "http://10.0.1.20:8000/chat",
+        "http://10.0.11.20:8080/chat"
 //        "http://49.50.131.0:8000/chat",
 //        "http://192.168.1.100:8000/chat"  // 필요시 추가 IP
     };
