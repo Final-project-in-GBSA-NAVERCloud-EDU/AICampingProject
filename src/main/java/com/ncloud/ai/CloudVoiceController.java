@@ -92,7 +92,7 @@ public class CloudVoiceController {
 	            outputStream.close();
 	            
 	            json.put("success", true);
-	            json.put("audioUrl", request.getSession().getServletContext().getRealPath("/resources/audio/") + fileName);
+	            json.put("audioUrl", "http://final-lb-107508807-f470e9e7c18c.kr.lb.naverncp.com"+"/resources/audio/" + fileName);
 	            json.put("message", "TTS 생성 완료");
 	            
 	        } else {
