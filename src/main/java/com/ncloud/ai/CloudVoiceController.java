@@ -2,200 +2,195 @@ package com.ncloud.ai;
 
 import org.springframework.web.bind.annotation.*;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ncloud.common.JsonHndr;
 
-import javax.servlet.ServletContext;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 
-import java.io.*;
-import java.net.*;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.Part;
 
 import org.json.JSONObject;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+
 @RestController
-@MultipartConfig
 @RequestMapping("/voice")
 public class CloudVoiceController {
 
-	 @Autowired
-	 private ServletContext servletContext;
-	 
-	 @RequestMapping(value = "/textToSpeech", method = RequestMethod.POST)
-	    public void textToSpeech(HttpServletRequest request, HttpServletResponse response) throws Exception {
-	        String text = request.getParameter("text");
-	        text = text.replace("<br>", "\n");
+	@RequestMapping(value = "/textToSpeech", method = RequestMethod.POST)
+	public void textToSpeech(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	    String text = request.getParameter("text");
+	    text = text.replace("<br>", "\n"); // 또는 공백으로
 
-	        JSONObject json = new JSONObject();
+	    JSONObject json = new JSONObject();
 
-	        try {
-	            if (text == null || text.trim().isEmpty()) {
-	                json.put("success", false);
-	                json.put("message", "텍스트가 필요합니다.");
-	                JsonHndr.print(json, response);
-	                return;
-	            }
-
-	            String clientId = "2xhuz460g1";
-	            String clientSecret = "lb2qJ7rp8kGTSIT5n7TC4Ze33ChzNBPgeVsiAqLz";
-
-	            String encodedText = URLEncoder.encode(text, "UTF-8");
-	            String apiURL = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts";
-
-	            URL url = new URL(apiURL);
-	            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-	            con.setRequestMethod("POST");
-	            con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
-	            con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
-	            con.setDoOutput(true);
-
-	            String postParams = "speaker=nes_c_hyeri&volume=0&speed=0&pitch=0&format=mp3&text=" + encodedText;
-	            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-	            wr.writeBytes(postParams);
-	            wr.flush();
-	            wr.close();
-
-	            int responseCode = con.getResponseCode();
-
-	            if (responseCode == 200) {
-	                InputStream is = con.getInputStream();
-	                int read;
-	                byte[] bytes = new byte[1024];
-
-	                String fileName = "tts_" + System.currentTimeMillis() + ".mp3";
-	                String realDir = request.getSession().getServletContext().getRealPath("/resources/audio/");
-	                String filePath = realDir + fileName;
-
-	                File dir = new File(realDir);
-	                if (!dir.exists()) dir.mkdirs();
-
-	                File file = new File(filePath);
-	                FileOutputStream outputStream = new FileOutputStream(file);
-
-	                while ((read = is.read(bytes)) != -1) {
-	                    outputStream.write(bytes, 0, read);
-	                }
-
-	                is.close();
-	                outputStream.close();
-
-	                // 📡 다른 서버로도 파일 복제
-	                String thisServerIp = request.getLocalAddr(); // 현재 서버 IP
-	                String targetServerIp = thisServerIp.equals("10.0.1.6") ? "10.0.11.6" : "10.0.1.6";
-	                String targetUrl = "http://" + targetServerIp + ":8080/uploadAudio";
-
-	                try {
-	                    String boundary = Long.toHexString(System.currentTimeMillis());
-	                    HttpURLConnection uploadCon = (HttpURLConnection) new URL(targetUrl).openConnection();
-	                    uploadCon.setDoOutput(true);
-	                    uploadCon.setRequestMethod("POST");
-	                    uploadCon.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-
-	                    try (
-	                        OutputStream output = uploadCon.getOutputStream();
-	                        PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, "UTF-8"), true);
-	                        FileInputStream fis = new FileInputStream(file);
-	                    ) {
-	                        writer.append("--").append(boundary).append("\r\n");
-	                        writer.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append(fileName).append("\"\r\n");
-	                        writer.append("Content-Type: audio/mpeg\r\n\r\n").flush();
-
-	                        byte[] buffer = new byte[1024];
-	                        int bytesRead;
-	                        while ((bytesRead = fis.read(buffer)) != -1) {
-	                            output.write(buffer, 0, bytesRead);
-	                        }
-	                        output.flush();
-
-	                        writer.append("\r\n").flush();
-	                        writer.append("--").append(boundary).append("--").append("\r\n").flush();
-	                    }
-
-	                    int uploadResponse = uploadCon.getResponseCode();
-	                    if (uploadResponse == 200) {
-	                        System.out.println("✅ 복제 성공: " + targetServerIp);
-	                    } else {
-	                        System.err.println("❌ 복제 실패: 응답 코드 " + uploadResponse);
-	                    }
-	                } catch (Exception e) {
-	                    System.err.println("📛 복제 중 오류: " + e.getMessage());
-	                }
-
-	                json.put("success", true);
-	                json.put("audioUrl", "/resources/audio/" + fileName);
-	                json.put("message", "TTS 생성 완료");
-
-	            } else {
-	                BufferedReader br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-	                String inputLine;
-	                StringBuffer errorResponse = new StringBuffer();
-	                while ((inputLine = br.readLine()) != null) {
-	                    errorResponse.append(inputLine);
-	                }
-	                br.close();
-
-	                json.put("success", false);
-	                json.put("message", "TTS 생성 실패: " + errorResponse.toString());
-	            }
-
-	        } catch (Exception e) {
-	            e.printStackTrace();
+	    try {
+	        if (text == null || text.trim().isEmpty()) {
 	            json.put("success", false);
-	            json.put("message", "TTS 생성 중 오류 발생: " + e.getMessage());
+	            json.put("message", "텍스트가 필요합니다.");
+	            JsonHndr.print(json, response);
+	            return;
 	        }
 
-	        JsonHndr.print(json, response);
+	        // 네이버 클라우드 TTS API 설정
+	        String clientId = "2xhuz460g1";
+	        String clientSecret = "lb2qJ7rp8kGTSIT5n7TC4Ze33ChzNBPgeVsiAqLz";
+
+	        String encodedText = URLEncoder.encode(text, "UTF-8");
+	        String apiURL = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts";
+
+	        URL url = new URL(apiURL);
+	        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+	        con.setRequestMethod("POST");
+	        con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
+	        con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
+	        con.setDoOutput(true);
+
+	        String postParams = "speaker=nes_c_hyeri&volume=0&speed=0&pitch=0&format=mp3&text=" + encodedText;
+	        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+	        wr.writeBytes(postParams);
+	        wr.flush();
+	        wr.close();
+
+	        int responseCode = con.getResponseCode();
+
+	        if(responseCode == 200) {
+	            InputStream is = con.getInputStream();
+
+	            // 파일명 생성 (타임스탬프 사용)
+	            String fileName = "tts_" + System.currentTimeMillis() + ".mp3";
+
+	            // TTS 응답을 바이트 배열로 읽기
+	            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	            byte[] buffer = new byte[1024];
+	            int read;
+	            while ((read = is.read(buffer)) != -1) {
+	                baos.write(buffer, 0, read);
+	            }
+	            byte[] audioData = baos.toByteArray();
+	            is.close();
+	            baos.close();
+
+	            // 네이버 Object Storage에 업로드
+	            String objectStorageUrl = uploadToObjectStorage(audioData, fileName);
+
+	            if (objectStorageUrl != null) {
+	                json.put("success", true);
+	                json.put("audioUrl", objectStorageUrl);
+	                json.put("message", "TTS 생성 및 업로드 완료");
+	            } else {
+	                json.put("success", false);
+	                json.put("message", "Object Storage 업로드 실패");
+	            }
+
+	        } else {
+	            BufferedReader br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+	            String inputLine;
+	            StringBuffer errorResponse = new StringBuffer();
+	            while ((inputLine = br.readLine()) != null) {
+	                errorResponse.append(inputLine);
+	            }
+	            br.close();
+
+	            json.put("success", false);
+	            json.put("message", "TTS 생성 실패: " + errorResponse.toString());
+	        }
+
+	    } catch (Exception e) {
+	        System.err.println("TTS 생성 오류: " + e.getMessage());
+	        e.printStackTrace();
+
+	        json.put("success", false);
+	        json.put("message", "TTS 생성 중 오류가 발생했습니다.");
 	    }
 
+	    JsonHndr.print(json, response);
+	}
+
+	private String uploadToObjectStorage(byte[] audioData, String fileName) {
+	    try {
+	        // 네이버 Object Storage 설정
+	        String accessKey = "ncp_iam_BPASKR5hJ6D4xl31g8Sc";
+	        String secretKey = "ncp_iam_BPKSKRLPuiSTbyXA6Vjf4jjggc9guDmtai";
+	        String endpoint = "https://kr.object.ncloudstorage.com";
+	        String bucketName = "camping-voice";
+
+	        // AWS SDK S3 Client 설정 (네이버 클라우드 Object Storage는 S3 호환)
+	        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+	        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+	            .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+	            .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, "kr-standard"))
+	            .withPathStyleAccessEnabled(true)
+	            .build();
+
+	        // S3 업로드 요청 생성
+	        ObjectMetadata metadata = new ObjectMetadata();
+	        metadata.setContentLength(audioData.length);
+	        metadata.setContentType("audio/mpeg");
+	        metadata.setCacheControl("public, max-age=86400"); // 24시간 캐시
+
+	        ByteArrayInputStream inputStream = new ByteArrayInputStream(audioData);
+
+	        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, inputStream, metadata);
+	        putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead); // 공개 읽기 권한
+
+	        // 파일 업로드
+	        s3Client.putObject(putObjectRequest);
+
+	        // 업로드된 파일의 공개 URL 반환
+	        String publicUrl = endpoint + "/" + bucketName + "/" + fileName;
+
+	        System.out.println("Object Storage 업로드 성공: " + publicUrl);
+
+	        return publicUrl;
+
+	    } catch (Exception e) {
+	        System.err.println("Object Storage 업로드 오류: " + e.getMessage());
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
 	
-
-	    @RequestMapping(value = "/uploadAudio", method = RequestMethod.POST)
-	    public void uploadAudio(@RequestParam("file") MultipartFile file, HttpServletResponse response) throws Exception {
-	        String fileName = file.getOriginalFilename();
-	        String realPath = servletContext.getRealPath("/resources/audio/");
-
-	        File dir = new File(realPath);
-	        if (!dir.exists()) dir.mkdirs();
-
-	        File dest = new File(realPath + fileName);
-	        file.transferTo(dest);
-
-	        JSONObject json = new JSONObject();
-	        json.put("success", true);
-	        json.put("message", "파일 저장 완료");
-	        JsonHndr.print(json, response);
-	    }
 
 	// ✅ 하드코딩된 Client ID/Secret
 	private final String clientId = "2xhuz460g1";
