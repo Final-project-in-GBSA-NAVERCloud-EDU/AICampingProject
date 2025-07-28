@@ -48,6 +48,11 @@
 	    <servlet-name>h2-console</servlet-name>
 	    <url-pattern>/h2-console/*</url-pattern>
 	</servlet-mapping>
+<multipart-config>
+    <max-file-size>5242880</max-file-size> <!-- 5MB -->
+    <max-request-size>20971520</max-request-size> <!-- 20MB -->
+    <file-size-threshold>0</file-size-threshold>
+</multipart-config>
 
 	
 
