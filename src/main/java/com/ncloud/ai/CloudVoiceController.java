@@ -31,7 +31,7 @@ public class CloudVoiceController {
 	@RequestMapping(value = "/textToSpeech", method = RequestMethod.POST)
 	public void textToSpeech(HttpServletRequest request, HttpServletResponse response) throws Exception {
 	    String text = request.getParameter("text");
-	    text = text.replace("<br>", "\n"); // 또는 공백으로
+	    text = text.replace("<br>", "\n");
 	    
 	    JSONObject json = new JSONObject();
 	    
@@ -55,7 +55,7 @@ public class CloudVoiceController {
 	        con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
 	        con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
 	        con.setDoOutput(true);
-	        //이밑에 speaker이 음성모델 선택임 볼륨 음성크기 5는1.5배크개 -5는 0.5배 스피드 음성속도 10은2배느리게 -5는 2배빠르게  피치 음높낮이 5가 1.2배 높은음 -5가 0.8배 낮은음
+	        
 	        String postParams = "speaker=nes_c_hyeri&volume=0&speed=0&pitch=0&format=mp3&text=" + encodedText;
 	        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
 	        wr.writeBytes(postParams);
@@ -63,23 +63,29 @@ public class CloudVoiceController {
 	        wr.close();
 	        
 	        int responseCode = con.getResponseCode();
-	        BufferedReader br;
 	        
 	        if(responseCode == 200) {
 	            InputStream is = con.getInputStream();
 	            int read = 0;
 	            byte[] bytes = new byte[1024];
 	            
-	            // 파일명 생성 (타임스탬프 사용)
+	            // 파일명 생성
 	            String fileName = "tts_" + System.currentTimeMillis() + ".mp3";
-//	            String filePath = request.getSession().getServletContext().getRealPath("/resources/audio/") + fileName;
-	            String filePath =  "/opt/tomcat9/webapps/cicdtest/resources/audio/" + fileName;
 	            
-	            System.out.println("filePath : " + filePath);
+	            // 웹 애플리케이션의 실제 경로 가져오기
+	            String webappPath = request.getSession().getServletContext().getRealPath("/");
+	            String audioDir = webappPath + "resources/audio/";
+	            String filePath = audioDir + fileName;
+	            
+	            System.out.println("웹앱 경로: " + webappPath);
+	            System.out.println("오디오 디렉토리: " + audioDir);
+	            System.out.println("파일 경로: " + filePath);
+	            
 	            // 디렉토리 생성
-	            File dir = new File("/opt/tomcat9/webapps/cicdtest/resources/audio/");
+	            File dir = new File(audioDir);
 	            if (!dir.exists()) {
-	                dir.mkdirs();
+	                boolean created = dir.mkdirs();
+	                System.out.println("디렉토리 생성 결과: " + created);
 	            }
 	            
 	            File f = new File(filePath);
@@ -92,12 +98,18 @@ public class CloudVoiceController {
 	            is.close();
 	            outputStream.close();
 	            
+	            // 웹에서 접근 가능한 URL 생성
+	            String contextPath = request.getContextPath(); // /cicdtest 또는 빈 문자열
+	            String audioUrl = contextPath + "/resources/audio/" + fileName;
+	            
 	            json.put("success", true);
-	            json.put("audioUrl", "/cicdtest/resources/audio/" + fileName);
+	            json.put("audioUrl", audioUrl);
 	            json.put("message", "TTS 생성 완료");
 	            
+	            System.out.println("생성된 오디오 URL: " + audioUrl);
+	            
 	        } else {
-	            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+	            BufferedReader br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
 	            String inputLine;
 	            StringBuffer errorResponse = new StringBuffer();
 	            while ((inputLine = br.readLine()) != null) {
@@ -114,7 +126,7 @@ public class CloudVoiceController {
 	        e.printStackTrace();
 	        
 	        json.put("success", false);
-	        json.put("message", "TTS 생성 중 오류가 발생했습니다.");
+	        json.put("message", "TTS 생성 중 오류가 발생했습니다: " + e.getMessage());
 	    }
 	    
 	    JsonHndr.print(json, response);
