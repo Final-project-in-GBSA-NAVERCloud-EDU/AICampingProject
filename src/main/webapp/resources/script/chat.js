@@ -822,7 +822,13 @@ function startRecording() {
         console.error("navigator.mediaDevices 또는 getUserMedia가 없습니다.");
         return;
     }
-    
+
+    // HTTPS 환경인지 확인 (브라우저 측에서 막는 문제를 회피)
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        alert("⚠️ 마이크 사용을 위해 HTTPS 환경으로 접속해주세요.");
+        location.href = "https://" + location.hostname + location.pathname; // 자동 리디렉션
+        return;
+    }
 
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
@@ -837,10 +843,10 @@ function startRecording() {
             setTimeout(() => mediaRecorder.stop(), 3000); // 3초 녹음
 
             mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: "audio/mp3" });
+                const blob = new Blob(chunks, { type: "audio/webm" }); // mp3 → webm이 더 호환성 높음
                 console.log("🔊 녹음된 형식:", blob.type);
                 const formData = new FormData();
-                formData.append("file", blob, "voice.mp3");
+                formData.append("file", blob, "voice.webm");
 
                 $.ajax({
                     url: '/voice/speechToText',
@@ -870,6 +876,7 @@ function startRecording() {
             console.error("마이크 접근 오류:", err);
         });
 }
+
 
 
 // 메시지 복사
