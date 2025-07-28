@@ -28,6 +28,7 @@ public class CampingApiController {
     public void askAI(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userMessage = request.getParameter("message");
         
+        System.out.println("userMessage : " + userMessage);
         JSONObject json = new JSONObject();
         
         if (userMessage == null || userMessage.trim().isEmpty()) {
@@ -52,7 +53,7 @@ public class CampingApiController {
                 restTemplate.getMessageConverters().add(0, new org.springframework.http.converter.StringHttpMessageConverter(java.nio.charset.StandardCharsets.UTF_8));
                 
                 // GET 방식으로 Python API 호출
-                String requestUrl = serverUrl + "?message=" + java.net.URLEncoder.encode(userMessage, "UTF-8");
+                String requestUrl = serverUrl + "?message=" + userMessage;
                 
                 ResponseEntity<Map> pythonResponse = restTemplate.getForEntity(requestUrl, Map.class);
                 
