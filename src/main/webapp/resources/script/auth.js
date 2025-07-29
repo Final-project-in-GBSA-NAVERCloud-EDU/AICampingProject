@@ -256,22 +256,22 @@ function downloadAPK() {
     }
 }
 
-function playLoginIntro() {
-	  const audio = document.getElementById('login-audio');
-
-	  // muted 상태에서 autoplay 허용 시도
-	  audio.muted = true;
-	  audio.play().then(() => {
-	    console.log("자동 재생 성공 (muted 상태)");
-	  }).catch(error => {
-	    console.warn("자동 재생이 차단됨:", error);
-
-	    // fallback: 사용자가 다시 클릭하면 소리와 함께 재생
-	    document.addEventListener('click', () => {
-	      audio.muted = false;
-	      audio.play();
-	    }, { once: true });
-	  });
-	}
+//document.addEventListener('DOMContentLoaded', () => {
+//    const audio = document.getElementById('login-audio');
+//
+//    // muted 상태에서 autoplay 허용 시도
+//    audio.muted = true;
+//    audio.play().then(() => {
+//      console.log("자동 재생 성공 (muted 상태)");
+//    }).catch(error => {
+//      console.warn("자동 재생이 차단됨:", error);
+//
+//      // fallback: 사용자 클릭 시 소리와 함께 재생
+//      document.addEventListener('click', () => {
+//        audio.muted = false;
+//        audio.play();
+//      }, { once: true });
+//    });
+//  });
 
 
