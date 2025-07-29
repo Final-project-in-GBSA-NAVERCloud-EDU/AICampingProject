@@ -936,8 +936,8 @@ function startRecording() {
                 timeout: 30000, // 30초 타임아웃
                 success: function(response) {
                     hideSTTProcessing();
-                    console.log("✅ STT 응답:", response);
-                    
+                    console.log("✅ STT 응답:", response.text);
+           
                     const text = response.text || response.message || "[음성 인식 실패]";
                     $("#messageInput").val(text);
                     

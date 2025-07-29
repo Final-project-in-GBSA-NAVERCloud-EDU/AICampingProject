@@ -129,8 +129,8 @@ public class CloudVoiceController {
 	private String uploadToObjectStorage(byte[] audioData, String fileName) {
 	    try {
 	        // 네이버 Object Storage 설정
-	        String accessKey = "ncp_iam_BPASKR5hJ6D4xl31g8Sc";
-	        String secretKey = "ncp_iam_BPKSKRLPuiSTbyXA6Vjf4jjggc9guDmtai";
+	        String accessKey = "ncp_iam_BPASKR4deBzYh6W9Ua0N";
+	        String secretKey = "ncp_iam_BPKSKRJ1HY1Q3H8i7TVyfzV6Wxk6AgGsuy";
 	        String endpoint = "https://kr.object.ncloudstorage.com";
 	        String bucketName = "camping-voice";
 
