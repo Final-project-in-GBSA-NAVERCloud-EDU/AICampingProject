@@ -30,7 +30,7 @@ AICAMPING은 사용자가 AI에게 자연어로 캠핑 관련 질문을 던지�
   * 마이페이지에서 대화내역 확인 가능
 
 ## 🏗️ 아키텍처 (Architecture)
-<img width="1861" height="1046" alt="image" src="https://github.com/user-attachments/assets/c85d55f0-dd35-4c7f-b711-4ffe6a349866" />
+<img width="1640" height="863" alt="Image" src="https://github.com/user-attachments/assets/c301d847-e4be-4aae-b76a-9d0b3d43ff52" />
 
 
 ## 🚀 실행 방법 (Getting Started)
